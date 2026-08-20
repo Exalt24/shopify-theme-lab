@@ -1,0 +1,13 @@
+# The pulled stock theme is Shopify's, not mine, and 190 files of it would bury
+# the two files that are. Only my additions and the perf work are tracked.
+assets/
+config/
+locales/
+templates/
+sections/*
+!sections/product-spec-table.liquid
+snippets/*
+!snippets/seo-breadcrumb-jsonld.liquid
+layout/
+node_modules/
+.shopify/
