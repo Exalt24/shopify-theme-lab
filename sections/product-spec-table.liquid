@@ -3,147 +3,235 @@
 
   THE PROBLEM IT SOLVES. A technical catalogue lives or dies on specifications:
   purity, particle size, CAS number, dimensions, tolerance. Most stores paste that
-  into the description as an HTML blob, which cannot be filtered, cannot be
-  compared across products, cannot be exported, and cannot be marked up for search
-  because it is prose. Moving it into metafields makes each spec a real field, and
-  this section renders whatever fields exist without a code change per product.
+  into the description as an HTML blob, which cannot be filtered, compared,
+  exported, or marked up for search, because it is prose. Moving it into metafields
+  makes each spec a real field, and this renders whatever fields exist without a
+  code change per product.
 
   WHY A DEFINITION LIST AND NOT A TABLE. Semantically these are name/value pairs,
   not tabular data with row and column relationships, and `dl` is what a screen
   reader announces correctly. It also collapses to one column on a phone with no
   horizontal scroll, which a real `table` will not do without a wrapper.
 
-  THE LIQUID DETAIL THAT MATTERS. `product.metafields.specs` is a namespace, and
-  iterating it yields `[key, metafield]` pairs where the second item is a
-  Metafield DROP, not a string. Rendering the drop directly works for most types
-  and silently prints an object for others, so the value goes through the type
-  check below. Getting this wrong is the single most common metafield bug: it
-  looks right for text fields and prints garbage the day someone adds a dimension
-  or a rating.
+  FOUR BUGS FIXED AFTER REVIEW, each of which looked fine until it did not:
+
+    1. NO SECOND Product NODE. This used to emit its own
+       {"@type":"Product","@id":"...#product","additionalProperty":[...]}, on the
+       belief that Google merges nodes sharing an @id. The theme's real Product
+       node carries no @id at all, so nothing matched and the page shipped TWO
+       Product entities, the second with no `name`, which is the one hard
+       requirement Product has. The specs now render as a visible list only, and
+       the structured-data extension belongs in the theme's own Product node where
+       it can be a single entity.
+
+    2. BOOLEAN false IS NOT BLANK, EXCEPT IT IS. Liquid compares `false` equal to
+       `blank`, so a `{% if field.value != blank %}` guard silently dropped every
+       boolean spec whose value was false, and the "No" branch below was
+       unreachable. A "Hazardous: No" row simply vanished, which on a technical
+       catalogue is the row that most needs to be there.
+
+    3. TYPED VALUES GO THROUGH ONE RENDERER. Iterating a namespace yields
+       [key, Metafield drop] pairs, and the drop prints as an object for a
+       dimension, a rating, a reference or rich text. That is handled once in
+       snippets/spec-value.liquid rather than twice, differently.
+
+    4. LABELS ARE NOT `capitalize`d BLINDLY. `cas_number` became "Cas number" and
+       `ph_range` became "Ph range", mangling exactly the vocabulary this section
+       exists to display. A label override setting handles the acronyms, and
+       capitalize is only the fallback.
 
   Blank-safe by construction: the whole section renders nothing when the namespace
-  is empty, so it can sit in the default product template for every product
-  without leaving an empty heading on the ones that have no specs.
+  is empty, so it can sit in the default product template for every product without
+  leaving an orphan heading on the ones that have no specs.
 {% endcomment %}
 
 {%- liquid
   assign ns = product.metafields[section.settings.namespace]
-  assign shown = 0
 -%}
 
 {%- if ns != blank -%}
-  <div class="spec-table" style="
-    padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px;
-  ">
-    <div class="spec-table__inner">
-      {%- if section.settings.heading != blank -%}
-        <h2 class="spec-table__heading">{{ section.settings.heading | escape }}</h2>
-      {%- endif -%}
-
-      <dl class="spec-table__list">
-        {%- for pair in ns -%}
-          {%- liquid
-            assign key = pair[0]
-            assign field = pair[1]
-          -%}
-          {%- if field.value != blank -%}
-            {%- assign shown = shown | plus: 1 -%}
-            <div class="spec-table__row">
-              {%- comment -%}
-                The key is a machine handle such as particle_size. Turned into a
-                label here rather than stored twice, so a new metafield needs no
-                second entry anywhere to display properly.
-              {%- endcomment -%}
-              <dt class="spec-table__key">
-                {{- key | replace: '_', ' ' | capitalize -}}
-              </dt>
-              <dd class="spec-table__value">
-                {%- case field.type -%}
-                  {%- when 'dimension' -%}
-                    {{ field.value.value }}&nbsp;{{ field.value.unit }}
-                  {%- when 'weight' -%}
-                    {{ field.value.value }}&nbsp;{{ field.value.unit }}
-                  {%- when 'volume' -%}
-                    {{ field.value.value }}&nbsp;{{ field.value.unit }}
-                  {%- when 'rating' -%}
-                    {{ field.value.value }} / {{ field.value.scale_max }}
-                  {%- when 'list.single_line_text_field' -%}
-                    {{ field.value | join: ', ' }}
-                  {%- when 'boolean' -%}
-                    {% if field.value %}Yes{% else %}No{% endif %}
-                  {%- when 'url' -%}
-                    <a href="{{ field.value }}" rel="nofollow">{{ field.value }}</a>
-                  {%- else -%}
-                    {{ field.value }}
-                {%- endcase -%}
-              </dd>
-            </div>
-          {%- endif -%}
-        {%- endfor -%}
-      </dl>
-
-      {%- if section.settings.show_schema and shown > 0 -%}
-        {%- comment -%}
-          additionalProperty is the correct schema.org home for arbitrary specs,
-          and it attaches to the Product node the theme already emits rather than
-          declaring a second Product, which would be a duplicate entity and is a
-          common way to lose a rich result.
-        {%- endcomment -%}
-        <script type="application/ld+json">
-        {
-          "@context": "https://schema.org",
-          "@type": "Product",
-          "@id": {{ request.origin | append: product.url | append: '#product' | json }},
-          "additionalProperty": [
-            {%- assign first = true -%}
-            {%- for pair in ns -%}
-              {%- if pair[1].value != blank -%}
-                {%- unless first %},{% endunless -%}
-                {
-                  "@type": "PropertyValue",
-                  "name": {{ pair[0] | replace: '_', ' ' | capitalize | json }},
-                  "value": {{ pair[1].value | json }}
-                }
-                {%- assign first = false -%}
-              {%- endif -%}
-            {%- endfor -%}
-          ]
-        }
-        </script>
-      {%- endif -%}
-    </div>
-  </div>
-
+  {%- comment -%}
+    Styles BEFORE the markup. Emitting them after means the grid exists unstyled
+    for a beat, which is a layout shift on a product page for no reason.
+    Scoped to this section's id, so two instances cannot fight and the rules do
+    not leak into the rest of the theme.
+  {%- endcomment -%}
   {%- style -%}
-    .spec-table__inner {
+    #shopify-section-{{ section.id }} .spec-table {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+    #shopify-section-{{ section.id }} .spec-table__inner {
       max-width: var(--page-width, 1200px);
       margin: 0 auto;
       padding: 0 1.5rem;
     }
-    .spec-table__heading {
+    #shopify-section-{{ section.id }} .spec-table__heading {
       font-size: 1.25rem;
       margin: 0 0 1rem;
     }
-    .spec-table__list {
+    #shopify-section-{{ section.id }} .spec-table__list {
       margin: 0;
       border-top: 1px solid rgba(128, 128, 128, 0.25);
+      /* Capped to a readable measure. Measured on the references: Fisher runs a
+         296px label inside a 651px container and Edmund is similar, so the pair
+         stays visually joined. Left uncapped this list spans the full 1280px page
+         and the value lands 350px from its own label, which reads as two
+         unrelated columns. */
+      max-width: 44rem;
     }
-    .spec-table__row {
+    #shopify-section-{{ section.id }} .spec-table__group-heading {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      opacity: 0.7;
+      margin: 1.4rem 0 0.4rem;
+    }
+    #shopify-section-{{ section.id }} .spec-table__group:first-of-type
+      .spec-table__group-heading { margin-top: 0; }
+    #shopify-section-{{ section.id }} .spec-table__row {
       display: grid;
-      /* Two columns on a real screen, stacked on a phone. minmax with a floor
-         stops a long spec name from squeezing the value into one character per
-         line, which is what a plain 1fr 1fr does at 390px. */
-      grid-template-columns: minmax(9rem, 30%) 1fr;
+      /* The pair stays SIDE BY SIDE at every width, label column at 38%.
+         Measured on the references: McMaster holds 38/62 at 374px and Edmund
+         about 50/50 at 390px. Stacking on a phone, which this used to do under
+         480px, turns a 20-spec table into a 40-row scroll on the device where
+         scanning is hardest. */
+      grid-template-columns: 38% 1fr;
       gap: 0.75rem;
       padding: 0.6rem 0;
       border-bottom: 1px solid rgba(128, 128, 128, 0.25);
     }
     @media screen and (max-width: 480px) {
-      .spec-table__row { grid-template-columns: 1fr; gap: 0.15rem; }
+      #shopify-section-{{ section.id }} .spec-table__inner { padding: 0 1rem; }
+      #shopify-section-{{ section.id }} .spec-table__row {
+        gap: 0.5rem;
+        font-size: 0.95rem;
+      }
     }
-    .spec-table__key { font-weight: 600; margin: 0; }
-    .spec-table__value { margin: 0; }
+    /* The VALUE carries the contrast, not the label. Both reference sites
+       disagree on how to treat the label and agree on this: the number someone
+       came for is the darkest text in the row, and the label is furniture.
+       Reversing it, which is what this section did first, buries the data. */
+    #shopify-section-{{ section.id }} .spec-table__key {
+      margin: 0;
+      font-weight: 500;
+      opacity: 0.72;
+    }
+    #shopify-section-{{ section.id }} .spec-table__value {
+      margin: 0;
+      /* Full-contrast, through the THEME'S OWN variable rather than a hex, so a
+         merchant changing their colour scheme still gets a readable value.
+         Measured: the theme paints body text at rgba(0,0,0,0.75) and exposes
+         --color-foreground as 0, 0, 0, so the value goes to the full foreground
+         while the label sits below the body weight. That is the hierarchy both
+         reference sites use. */
+      color: rgb(var(--color-foreground, 0 0 0));
+      font-weight: 500;
+    }
+    /* A value that is a real link keeps looking like one. */
+    #shopify-section-{{ section.id }} .spec-table__value a { color: revert; }
   {%- endstyle -%}
+
+  <div class="spec-table">
+    <div class="spec-table__inner">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="spec-table__heading">{{ section.settings.heading | escape }}</h2>
+      {%- endif -%}
+
+      {%- comment -%}
+        Grouping pass. A key written `physical__weight_grams` puts the row under a
+        "Physical" heading; a key with no prefix falls into the default group, so
+        an existing catalogue needs no migration to keep working.
+
+        Each group is its own dl under its own heading rather than a full-width
+        band row inside one table, which is how Edmund does it visually but
+        without the semantics: a banded td colspan groups nothing for a screen
+        reader.
+      {%- endcomment -%}
+      {%- liquid
+        assign group_names = ''
+        for pair in ns
+          assign parts = pair[0] | split: '__'
+          if parts.size > 1
+            assign gname = parts[0] | replace: '_', ' ' | capitalize
+          else
+            assign gname = section.settings.default_group | default: 'General'
+          endif
+          unless group_names contains gname
+            if group_names == ''
+              assign group_names = gname
+            else
+              assign group_names = group_names | append: '~|~' | append: gname
+            endif
+          endunless
+        endfor
+        assign groups = group_names | split: '~|~'
+      -%}
+
+      {%- for group in groups -%}
+      <div class="spec-table__group">
+        {%- if groups.size > 1 -%}
+          <h3 class="spec-table__group-heading">{{ group | escape }}</h3>
+        {%- endif -%}
+      <dl class="spec-table__list">
+        {%- for pair in ns -%}
+          {%- liquid
+            assign gparts = pair[0] | split: '__'
+            if gparts.size > 1
+              assign row_group = gparts[0] | replace: '_', ' ' | capitalize
+            else
+              assign row_group = section.settings.default_group | default: 'General'
+            endif
+          -%}
+          {%- if row_group != group -%}{% continue %}{%- endif -%}
+          {%- liquid
+            assign key_parts = pair[0] | split: '__'
+            if key_parts.size > 1
+              assign key = key_parts | last
+            else
+              assign key = pair[0]
+            endif
+            assign field = pair[1]
+
+            # `false` compares equal to blank in Liquid, so a boolean has to be
+            # allowed through explicitly or every "No" disappears.
+            assign renderable = false
+            if field.type == 'boolean'
+              assign renderable = true
+            elsif field.value != blank
+              assign renderable = true
+            endif
+          -%}
+          {%- if renderable -%}
+            {%- liquid
+              # An override lets a merchant write "CAS number" or "pH range" for a
+              # key that capitalize would otherwise mangle. Format is
+              # key:Label, one pair per line.
+              assign label = key | replace: '_', ' ' | capitalize
+              assign overrides = section.settings.label_overrides | newline_to_br | split: '<br />'
+              for line in overrides
+                assign bits = line | strip | split: ':'
+                if bits.size == 2
+                  assign override_key = bits[0] | strip
+                  if override_key == key
+                    assign label = bits[1] | strip
+                  endif
+                endif
+              endfor
+            -%}
+            <div class="spec-table__row">
+              <dt class="spec-table__key">{{ label | escape }}</dt>
+              <dd class="spec-table__value">
+                {%- render 'spec-value', field: field -%}
+              </dd>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </dl>
+      </div>
+      {%- endfor -%}
+    </div>
+  </div>
 {%- endif -%}
 
 {% schema %}
@@ -151,6 +239,9 @@
   "name": "Specification table",
   "tag": "section",
   "class": "section-spec-table",
+  "enabled_on": {
+    "templates": ["product"]
+  },
   "settings": [
     {
       "type": "text",
@@ -166,11 +257,18 @@
       "info": "Every metafield in this namespace is rendered, in the order Shopify returns them. Adding a spec needs no theme change."
     },
     {
-      "type": "checkbox",
-      "id": "show_schema",
-      "label": "Emit specs as structured data",
-      "default": true,
-      "info": "Adds additionalProperty to the existing Product schema. Turn off if another app already emits it, so the page does not declare the product twice."
+      "type": "text",
+      "id": "default_group",
+      "label": "Default group heading",
+      "default": "General",
+      "info": "Used for metafields with no group prefix. A key written physical__weight groups under Physical."
+    },
+    {
+      "type": "textarea",
+      "id": "label_overrides",
+      "label": "Label overrides",
+      "info": "One per line as key:Label, for example cas_number:CAS number. Without an override the key is title-cased, which mangles acronyms.",
+      "default": "cas_number:CAS number\nph_range:pH range"
     },
     {
       "type": "range",
