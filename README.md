@@ -107,7 +107,58 @@ correct until the day someone adds a typed field.
 Renders nothing at all when the namespace is empty, so it can sit in the default
 product template without leaving an orphan heading on products that have no specs.
 
-### 3. `perf/` — a measured diagnosis, not an opinion
+### 3. `perf/` — measurement tooling, and one thing that did not work
+
+**`perf/app-cost.mjs` is the useful one.** It attributes bytes and main-thread time
+to each third-party origin on a page, which turns "optimize Core Web Vitals" into a
+list sorted by cost. Run against a real production storefront it produced this:
+
+| Origin | KB | CPU ms |
+|---|---|---|
+| googletagmanager.com | 1,985 | 206 |
+| the store itself | 2,119 | 166 |
+| scripts.clarity.ms | 73 | 106 |
+| powr.io | 50 | 56 |
+| klaviyo (5 origins) | 142 | 35 |
+
+Third party came to **3,697 KB and 457 ms of CPU against the store's own 166 ms**,
+64% of the bytes on the page. One tag manager container was 1,985 KB.
+
+It separates Shopify's own platform scripts from apps, because counting the
+platform as app cost inflates every number and points a merchant at savings they
+cannot have. It deliberately does not recommend removals: whether a review widget
+earns 800 KB is a revenue question, not a bytes question.
+
+**`perf/audit.mjs`** runs Lighthouse against a password-gated development store,
+which a plain `npx lighthouse` cannot do: the store 302s to /password and you end
+up auditing a login form and reporting a lovely score for it. It logs in with
+Playwright first and passes the cookie jar through. It also runs N times and
+reports the median, because a single run varies by several points and a
+before/after built from one run each can show a win that is entirely noise.
+
+#### What I tried and threw away
+
+I attempted a synthetic before/after: simulate a typical app-laden store, apply
+deferral and interaction-loading, measure the difference. **It produced three
+mutually inconsistent results and I deleted it**, because a number I cannot account
+for is worse than no number.
+
+The three reasons it failed are each worth knowing:
+
+1. **The Shopify CLI honours `.gitignore` on push.** A gitignored snippet is never
+   uploaded, and Liquid renders a MISSING snippet as empty **with no error**, so the
+   feature silently does not exist while the page looks fine.
+2. **Shopify minifies theme JS assets.** A 700 KB payload padded with comments
+   arrived as **286 bytes**, so the first run measured nothing at all.
+3. **Storefront HTML is CDN-cached and a cache-busting query parameter does not
+   reliably bust it.** After pushing a change, the live page still served the old
+   markup, so two variants measured the same cached page twice.
+
+Also worth recording: **Liquid cannot read query parameters.** `request` has no
+query object, and while `content_for_header` contains the full URL in the served
+HTML, matching it at render time did not work either. Both failures were silent.
+
+### 4. The original diagnosis
 
 Lighthouse against a **public production Shopify store**, mobile emulation,
 simulated throttling (150 ms RTT, 1.6 Mbps, 4x CPU slowdown):
