@@ -4,7 +4,10 @@
   "description": "Liquid work on a real Shopify development store: two additions to a live theme\r that fix gaps the stock theme leaves open, plus a measured performance diagnosis\r of a public production store.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "css": "sass styles/spec-table.scss assets/spec-table.css --style=compressed --no-source-map",
+    "css:watch": "sass --watch styles/spec-table.scss assets/spec-table.css --no-source-map",
+    "check": "shopify theme check"
   },
   "repository": {
     "type": "git",
@@ -20,5 +23,8 @@
   "homepage": "https://github.com/Exalt24/shopify-theme-lab#readme",
   "dependencies": {
     "lighthouse": "^13.4.1"
+  },
+  "devDependencies": {
+    "sass": "^1.103.1"
   }
 }

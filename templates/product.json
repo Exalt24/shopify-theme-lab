@@ -104,7 +104,8 @@
       "settings": {
         "heading": "Specifications",
         "namespace": "specs",
-        "show_schema": true,
+        "label_overrides": "cas_number:CAS number\nph_range:pH range",
+        "default_group": "General",
         "padding_top": 32,
         "padding_bottom": 32
       }

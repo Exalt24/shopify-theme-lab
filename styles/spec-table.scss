@@ -1,0 +1,102 @@
+// Specification table styles, authored in SCSS and compiled into the theme.
+//
+// WHY A BUILD STEP RATHER THAN LIQUID. Shopify dropped support for .scss.liquid
+// assets: the platform no longer compiles Sass, so a theme wanting SCSS has to
+// build it and commit the CSS. That is the modern arrangement and it is better
+// anyway, because the compile fails locally where someone can see it rather than
+// silently serving broken CSS from a CDN.
+//
+// The variables exist for a real reason and not to demonstrate variables: every
+// measurement here came from reading five technical storefronts at 390px and
+// 1440px, so each one has a source rather than a preference behind it.
+
+// The label column. Measured: McMaster-Carr holds 38% at 374px, Fisher runs 296px
+// inside a 651px container which is 45%. 38% sits at the readable end of that.
+$label-column: 38%;
+
+// A readable measure. Uncapped, this grid put a value 350px from its own label at
+// 1280px and read as two unrelated columns.
+$max-measure: 44rem;
+
+// Hairline rules rather than zebra striping. Three of the four reference tables
+// use rules; DigiKey is the only striper and it pairs striping with a four-column
+// layout that linearises unrelated specs into one sequence for a screen reader.
+$rule: rgba(128, 128, 128, 0.25);
+
+$row-padding: 0.6rem;
+$gap: 0.75rem;
+$stack-below: 480px;
+
+// The label is furniture, the value is what the buyer came for. Both reference
+// sites disagree about how to treat the label and agree the value carries the
+// contrast.
+$label-opacity: 0.72;
+
+@mixin rule-below {
+  border-bottom: 1px solid $rule;
+}
+
+.spec-table {
+  &__inner {
+    max-width: var(--page-width, 1200px);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  &__heading {
+    font-size: 1.25rem;
+    margin: 0 0 1rem;
+  }
+
+  &__group-heading {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.7;
+    margin: 1.4rem 0 0.4rem;
+  }
+
+  &__group:first-of-type &__group-heading {
+    margin-top: 0;
+  }
+
+  &__list {
+    margin: 0;
+    max-width: $max-measure;
+    border-top: 1px solid $rule;
+  }
+
+  &__row {
+    display: grid;
+    // Side by side at EVERY width. Stacking on mobile turns a twenty-spec table
+    // into a forty-row scroll on the device where scanning is hardest.
+    grid-template-columns: $label-column 1fr;
+    gap: $gap;
+    padding: $row-padding 0;
+    @include rule-below;
+
+    @media screen and (max-width: $stack-below) {
+      gap: $gap * 0.66;
+      font-size: 0.95rem;
+    }
+  }
+
+  &__key {
+    margin: 0;
+    font-weight: 500;
+    opacity: $label-opacity;
+  }
+
+  &__value {
+    margin: 0;
+    font-weight: 500;
+    // The theme's own token, so a merchant changing their colour scheme still
+    // gets a readable value. A hardcoded hex would fight their theme.
+    color: rgb(var(--color-foreground, 0 0 0));
+
+    // A value that is genuinely a link keeps looking like one.
+    a {
+      color: revert;
+    }
+  }
+}
