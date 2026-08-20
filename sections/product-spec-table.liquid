@@ -56,81 +56,16 @@
     Scoped to this section's id, so two instances cannot fight and the rules do
     not leak into the rest of the theme.
   {%- endcomment -%}
-  {%- style -%}
-    #shopify-section-{{ section.id }} .spec-table {
-      padding-top: {{ section.settings.padding_top }}px;
-      padding-bottom: {{ section.settings.padding_bottom }}px;
-    }
-    #shopify-section-{{ section.id }} .spec-table__inner {
-      max-width: var(--page-width, 1200px);
-      margin: 0 auto;
-      padding: 0 1.5rem;
-    }
-    #shopify-section-{{ section.id }} .spec-table__heading {
-      font-size: 1.25rem;
-      margin: 0 0 1rem;
-    }
-    #shopify-section-{{ section.id }} .spec-table__list {
-      margin: 0;
-      border-top: 1px solid rgba(128, 128, 128, 0.25);
-      /* Capped to a readable measure. Measured on the references: Fisher runs a
-         296px label inside a 651px container and Edmund is similar, so the pair
-         stays visually joined. Left uncapped this list spans the full 1280px page
-         and the value lands 350px from its own label, which reads as two
-         unrelated columns. */
-      max-width: 44rem;
-    }
-    #shopify-section-{{ section.id }} .spec-table__group-heading {
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      opacity: 0.7;
-      margin: 1.4rem 0 0.4rem;
-    }
-    #shopify-section-{{ section.id }} .spec-table__group:first-of-type
-      .spec-table__group-heading { margin-top: 0; }
-    #shopify-section-{{ section.id }} .spec-table__row {
-      display: grid;
-      /* The pair stays SIDE BY SIDE at every width, label column at 38%.
-         Measured on the references: McMaster holds 38/62 at 374px and Edmund
-         about 50/50 at 390px. Stacking on a phone, which this used to do under
-         480px, turns a 20-spec table into a 40-row scroll on the device where
-         scanning is hardest. */
-      grid-template-columns: 38% 1fr;
-      gap: 0.75rem;
-      padding: 0.6rem 0;
-      border-bottom: 1px solid rgba(128, 128, 128, 0.25);
-    }
-    @media screen and (max-width: 480px) {
-      #shopify-section-{{ section.id }} .spec-table__inner { padding: 0 1rem; }
-      #shopify-section-{{ section.id }} .spec-table__row {
-        gap: 0.5rem;
-        font-size: 0.95rem;
-      }
-    }
-    /* The VALUE carries the contrast, not the label. Both reference sites
-       disagree on how to treat the label and agree on this: the number someone
-       came for is the darkest text in the row, and the label is furniture.
-       Reversing it, which is what this section did first, buries the data. */
-    #shopify-section-{{ section.id }} .spec-table__key {
-      margin: 0;
-      font-weight: 500;
-      opacity: 0.72;
-    }
-    #shopify-section-{{ section.id }} .spec-table__value {
-      margin: 0;
-      /* Full-contrast, through the THEME'S OWN variable rather than a hex, so a
-         merchant changing their colour scheme still gets a readable value.
-         Measured: the theme paints body text at rgba(0,0,0,0.75) and exposes
-         --color-foreground as 0, 0, 0, so the value goes to the full foreground
-         while the label sits below the body weight. That is the hierarchy both
-         reference sites use. */
-      color: rgb(var(--color-foreground, 0 0 0));
-      font-weight: 500;
-    }
-    /* A value that is a real link keeps looking like one. */
-    #shopify-section-{{ section.id }} .spec-table__value a { color: revert; }
-  {%- endstyle -%}
+  {%- comment -%}
+    Styles come from a COMPILED SCSS asset rather than an inline style block.
+    Shopify no longer compiles .scss.liquid, so a theme wanting SCSS builds it and
+    commits the CSS: npm run css. The compile then fails locally where someone can
+    see it, instead of silently serving broken CSS from a CDN.
+
+    stylesheet_tag rather than a raw link, because Shopify dedupes it: the file is
+    requested once even when the section appears twice on a page.
+  {%- endcomment -%}
+  {{ 'spec-table.css' | asset_url | stylesheet_tag }}
 
   <div class="spec-table">
     <div class="spec-table__inner">

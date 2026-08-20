@@ -6,9 +6,7 @@
 # The pulled stock theme is Shopify's, not mine, and 190 files of it would bury
 # the two files that are. Only my additions and the perf work are tracked.
 assets/*
-!assets/sim-tagmgr.js
-!assets/sim-chat.js
-!assets/sim-reviews.js
+!assets/spec-table.css
 config/
 locales/
 templates/*
