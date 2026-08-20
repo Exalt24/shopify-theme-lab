@@ -1,0 +1,110 @@
+{% comment %}
+  BreadcrumbList structured data.
+
+  WHY THIS SNIPPET EXISTS. The theme already emits Product, Organization and
+  WebSite schema, and emits no BreadcrumbList anywhere. That is the one Google
+  actually renders in the result itself: without it a product result shows the raw
+  URL path, with it the result shows Home > Collection > Product. On a catalogue
+  with thousands of SKUs and deep URLs that is the difference between a result
+  that reads as a category and one that reads as a slug.
+
+  WHY IT IS BUILT FROM collection.title RATHER THAN THE URL. Shopify serves the
+  same product under /products/x and /collections/y/products/x, and only the
+  second knows which collection the customer came through. `collection` is set on
+  that route and nil on the bare product URL, so the middle crumb appears exactly
+  when it is true and is omitted otherwise. Inventing a category from the handle
+  would be structured data that contradicts the page, which is worse than none.
+
+  ABSOLUTE URLS, and that is not a style choice: Google requires an absolute URI
+  in an @id, and a relative one is silently dropped. `request.origin` gives the
+  canonical host including the scheme, so this stays correct on a preview domain,
+  a custom domain, and a myshopify domain without a hardcoded string to rot.
+
+  ESCAPING. Every interpolated value goes through `| json`, which quotes AND
+  escapes. A product title containing a double quote, which in a technical
+  catalogue is routine because inches are written 2", would otherwise produce
+  invalid JSON and take the whole block down with it.
+{% endcomment %}
+
+{%- liquid
+  assign crumb_position = 0
+-%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      {%- comment -%}
+        The first crumb is deliberately shop.name and NOT a translation key.
+
+        `theme check` caught the first version of this line: it used
+        'general.breadcrumbs.home' | t | default: 'Home', and that key does not
+        exist in this theme's locales. The `default` filter does NOT save it,
+        because a missing translation renders the literal string
+        "Translation missing: en.general.breadcrumbs.home", which is not blank, so
+        `default` never fires and Google would have been served that text as the
+        breadcrumb name on every page.
+
+        shop.name needs no locale file, is already the brand as the merchant typed
+        it, and matches the Organization node the theme emits, so the two agree
+        instead of one saying "Home" and the other the company name.
+      {%- endcomment -%}
+      "name": {{ shop.name | json }},
+      "item": {{ request.origin | append: routes.root_url | json }}
+    }
+    {%- if template.name == 'product' -%}
+      {%- if collection and collection.title != blank -%}
+        ,{
+          "@type": "ListItem",
+          "position": 2,
+          "name": {{ collection.title | json }},
+          "item": {{ request.origin | append: collection.url | json }}
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": {{ product.title | json }},
+          "item": {{ request.origin | append: product.url | json }}
+        }
+      {%- else -%}
+        ,{
+          "@type": "ListItem",
+          "position": 2,
+          "name": {{ product.title | json }},
+          "item": {{ request.origin | append: product.url | json }}
+        }
+      {%- endif -%}
+    {%- elsif template.name == 'collection' and collection.title != blank -%}
+      ,{
+        "@type": "ListItem",
+        "position": 2,
+        "name": {{ collection.title | json }},
+        "item": {{ request.origin | append: collection.url | json }}
+      }
+    {%- elsif template.name == 'article' and article -%}
+      ,{
+        "@type": "ListItem",
+        "position": 2,
+        "name": {{ blog.title | json }},
+        "item": {{ request.origin | append: blog.url | json }}
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": {{ article.title | json }},
+        "item": {{ request.origin | append: article.url | json }}
+      }
+    {%- elsif template.name == 'page' and page.title != blank -%}
+      ,{
+        "@type": "ListItem",
+        "position": 2,
+        "name": {{ page.title | json }},
+        "item": {{ request.origin | append: page.url | json }}
+      }
+    {%- endif -%}
+  ]
+}
+</script>
