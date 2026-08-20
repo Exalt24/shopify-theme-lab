@@ -1,6 +1,14 @@
+# THE SHOPIFY CLI HONOURS THIS FILE ON PUSH. That is not obvious and it cost an
+# hour: a gitignored snippet is never uploaded, and Liquid renders a MISSING
+# snippet as empty with no error at all, so the page looks fine and the feature
+# silently does not exist. Anything the theme needs at runtime must be un-ignored
+# here, not just committed.
 # The pulled stock theme is Shopify's, not mine, and 190 files of it would bury
 # the two files that are. Only my additions and the perf work are tracked.
-assets/
+assets/*
+!assets/sim-tagmgr.js
+!assets/sim-chat.js
+!assets/sim-reviews.js
 config/
 locales/
 templates/*
@@ -11,6 +19,7 @@ sections/*
 snippets/*
 !snippets/seo-breadcrumb-jsonld.liquid
 !snippets/spec-value.liquid
+!snippets/third-party-sim.liquid
 layout/
 node_modules/
 .shopify/

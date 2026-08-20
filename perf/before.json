@@ -1,0 +1,54 @@
+{
+  "url": "https://dac-dev-store.myshopify.com/products/the-multi-location-snowboard",
+  "label": "before",
+  "runs": [
+    {
+      "score": 95,
+      "lcp_ms": 2565,
+      "fcp_ms": 2040,
+      "tbt_ms": 22,
+      "cls": 0,
+      "si_ms": 2040,
+      "requests": 226,
+      "transfer_kb": 1382,
+      "script_eval_ms": 449,
+      "unused_js_kb": 33
+    },
+    {
+      "score": 95,
+      "lcp_ms": 2566,
+      "fcp_ms": 1966,
+      "tbt_ms": 15,
+      "cls": 0,
+      "si_ms": 1966,
+      "requests": 222,
+      "transfer_kb": 1374,
+      "script_eval_ms": 433,
+      "unused_js_kb": 79
+    },
+    {
+      "score": 92,
+      "lcp_ms": 3018,
+      "fcp_ms": 2117,
+      "tbt_ms": 15,
+      "cls": 0,
+      "si_ms": 2117,
+      "requests": 222,
+      "transfer_kb": 1375,
+      "script_eval_ms": 441,
+      "unused_js_kb": 77
+    }
+  ],
+  "median": {
+    "score": 95,
+    "lcp_ms": 2566,
+    "fcp_ms": 2040,
+    "tbt_ms": 15,
+    "cls": 0,
+    "si_ms": 2040,
+    "requests": 222,
+    "transfer_kb": 1375,
+    "script_eval_ms": 441,
+    "unused_js_kb": 77
+  }
+}

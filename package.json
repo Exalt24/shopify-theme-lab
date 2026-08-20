@@ -1,0 +1,24 @@
+{
+  "name": "shopify-theme-lab",
+  "version": "1.0.0",
+  "description": "Liquid work on a real Shopify development store: two additions to a live theme\r that fix gaps the stock theme leaves open, plus a measured performance diagnosis\r of a public production store.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Exalt24/shopify-theme-lab.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Exalt24/shopify-theme-lab/issues"
+  },
+  "homepage": "https://github.com/Exalt24/shopify-theme-lab#readme",
+  "dependencies": {
+    "lighthouse": "^13.4.1"
+  }
+}
