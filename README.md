@@ -48,9 +48,55 @@ purity, particle size, dimensions, tolerance, connector.
 The usual approach pastes specs into the product description as an HTML blob,
 which cannot be filtered, compared, exported, or marked up, because it is prose.
 This renders whatever lives in a metafield namespace, so **adding a spec needs no
-theme change**, and optionally emits the same specs as `additionalProperty` on the
-existing Product schema rather than declaring a second Product node, which is a
-common way to lose a rich result.
+theme change**, and groups rows under headings from a `prefix__key` convention so
+an existing catalogue needs no migration to keep working.
+
+The specs reach structured data through the theme's **own** Product node in
+`sections/main-product.liquid`, not a second one. The first version emitted its own
+`{"@type":"Product","@id":"...#product","additionalProperty":[...]}` on the belief
+that Google merges nodes sharing an `@id`. **The theme's real Product node has no
+`@id` at all**, so nothing matched and the page shipped two Product entities, the
+second with no `name`, which is the single field Product requires. The live page
+confirmed it before the fix: `Product nodes on page: 2`.
+
+Two more bugs worth knowing, both of which looked fine until they did not:
+
+- **Liquid compares `false` equal to `blank`.** A `{% if field.value != blank %}`
+  guard therefore dropped every boolean spec whose value was false, and the "No"
+  branch was unreachable. On a technical catalogue, "Hazardous: No" is the row that
+  most needs to be there.
+- **The JSON-LD serialised raw values** while the visible HTML went through a type
+  switch, so exactly the types the switch existed to protect against reached
+  structured data as Shopify objects like `{"value":12.0,"unit":"MILLIMETERS"}`.
+  Both paths now share `snippets/spec-value.liquid`, so they cannot disagree again.
+
+### Layout came from reading five real PDPs, not from taste
+
+Captured at 1440px and 390px: DigiKey, Edmund Optics, Fisher Scientific,
+McMaster-Carr, and MSE Supplies itself.
+
+- **The pair stays side by side at every width.** McMaster holds a 38/62 split at
+  374px. Stacking on mobile, which this did under 480px, turns a 20-spec table into
+  a 40-row scroll on the device where scanning is hardest. Measured effect of the
+  fix: the block went from 365px tall to 212px at 390px.
+- **The value carries the contrast, not the label.** McMaster and Edmund disagree
+  about how to treat the label and agree completely on this. Mine was backwards.
+  The value now uses the theme's own `--color-foreground` variable rather than a
+  hardcoded hex, so a merchant's colour scheme still works.
+- **The list is capped to a readable measure.** Fisher runs a 296px label inside a
+  651px container. Uncapped, this grid put the value 350px from its own label at
+  1280px and read as two unrelated columns.
+- **Nothing truncates.** McMaster renders 31 rows with no show-more; Fisher is the
+  only site in the set that collapses, and it hides Percent Purity behind a click
+  on a purity-driven product.
+
+**Deliberately not copied:** DigiKey's four-column zebra grid. Two independent
+pairs per row means a screen reader linearises unrelated specs into one sequence.
+
+**Kept against all five references: the `<dl>`.** Not one of them uses one, and not
+one associates a header cell, so a screen reader on DigiKey, Edmund, Fisher and
+McMaster hears a value with no idea which column was the name. Being more correct
+than the references is the right call when they are all wrong the same way.
 
 The Liquid detail that bites everyone: iterating a metafield namespace yields
 `[key, metafield]` pairs where the second item is a **Metafield drop, not a
@@ -98,11 +144,21 @@ shopify theme check                     # my two files: zero offenses
 shopify theme push --unpublished        # pushed to the dev store
 ```
 
-`theme check` reports 49 remaining offenses across 45 files. **All of them are
-pre-existing in the stock theme**, none in the two files added here.
+`theme check` reports 48 remaining offenses across 44 files. **All of them are
+pre-existing in the stock theme**, none in the four files added or edited here.
 
-The rendered output on the storefront is not verified here, and that is a real
-limitation rather than an omission: the development store is password-protected,
-`theme dev` and `theme share` both sit behind that password, and no Admin API
-mutation exists to lift it. Rendering verification needs the storefront password
-entered by hand.
+The rendered output IS verified, in a real browser at 1280px and 390px: the spec
+table renders as a `dl` with real metafield values, the breadcrumb emits a valid
+two-item trail on a product page and nothing at all on the home page, exactly one
+Product node carries the specs, and there is no horizontal overflow or console
+error at either width.
+
+It needed the storefront password entered by hand, because a development store
+gates everything: `theme dev`, `theme share` and the preview URL all sit behind
+it and no Admin API mutation exists to lift it.
+
+**A linter is not a validator.** `theme check` passed a file that `theme push`
+then rejected outright, because Liquid does not allow a filter inside an `if`
+condition. The rejected file silently stayed at its previous version on the
+store, so the browser check kept showing the old output and it looked like the
+fix had not worked.
