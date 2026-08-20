@@ -3,22 +3,35 @@
 
   WHY THIS SNIPPET EXISTS. The theme already emits Product, Organization and
   WebSite schema, and emits no BreadcrumbList anywhere. That is the one Google
-  actually renders in the result itself: without it a product result shows the raw
-  URL path, with it the result shows Home > Collection > Product. On a catalogue
-  with thousands of SKUs and deep URLs that is the difference between a result
-  that reads as a category and one that reads as a slug.
+  renders inside the result itself: without it a product result shows the raw URL
+  path, with it the result shows Store > Collection > Product. On a catalogue with
+  thousands of deep URLs that is the difference between a result that reads as a
+  category and one that reads as a slug.
 
-  WHY IT IS BUILT FROM collection.title RATHER THAN THE URL. Shopify serves the
-  same product under /products/x and /collections/y/products/x, and only the
-  second knows which collection the customer came through. `collection` is set on
-  that route and nil on the bare product URL, so the middle crumb appears exactly
-  when it is true and is omitted otherwise. Inventing a category from the handle
-  would be structured data that contradicts the page, which is worse than none.
+  GOOGLE REQUIRES AT LEAST TWO ListItems, and this is where the first version of
+  this file was wrong. It rendered from the layout on every template, so `index`,
+  `cart`, `search`, `404`, `list-collections` and `customers/*` each emitted a
+  BreadcrumbList containing exactly ONE item, the store name. Valid JSON,
+  meaningless markup, and an invalid item reported sitewide in Search Console. The
+  crumbs are now built into a list FIRST and the script is only emitted when a
+  real trail exists.
 
-  ABSOLUTE URLS, and that is not a style choice: Google requires an absolute URI
-  in an @id, and a relative one is silently dropped. `request.origin` gives the
-  canonical host including the scheme, so this stays correct on a preview domain,
-  a custom domain, and a myshopify domain without a hardcoded string to rot.
+  WHY THE MIDDLE CRUMB COMES FROM collection AND NOT THE URL. Shopify serves the
+  same product under /products/x and /collections/y/products/x, and only the second
+  knows which collection the customer came through. `collection` is set on that
+  route and nil on the bare product URL, so the crumb appears exactly when it is
+  true. Inventing a category from the handle would be structured data that
+  contradicts the page, which is worse than none.
+
+  THE LAST CRUMB USES canonical_url. On /collections/y/products/x the product URL
+  and the page's own canonical disagree, and a breadcrumb whose final item points
+  somewhere other than the canonical is the mismatch worth avoiding. Google also
+  treats `item` as optional on the final crumb and falls back to the page URL, so
+  emitting the canonical explicitly is the same answer stated out loud.
+
+  ABSOLUTE URLS. `item` is an IRI, and a relative one resolves against the document
+  base, which is ambiguous under a proxy, under AMP, and under syndication.
+  `request.origin` gives the scheme and host without a hardcoded string to rot.
 
   ESCAPING. Every interpolated value goes through `| json`, which quotes AND
   escapes. A product title containing a double quote, which in a technical
@@ -27,84 +40,69 @@
 {% endcomment %}
 
 {%- liquid
-  assign crumb_position = 0
+  assign crumb_names = ''
+  assign crumb_urls = ''
+  assign sep = '~|~'
+
+  assign crumb_names = shop.name
+  assign crumb_urls = request.origin | append: routes.root_url
+
+  case template.name
+    when 'product'
+      if collection and collection.title != blank
+        assign crumb_names = crumb_names | append: sep | append: collection.title
+        assign crumb_urls = crumb_urls | append: sep | append: request.origin | append: collection.url
+      endif
+      assign crumb_names = crumb_names | append: sep | append: product.title
+      assign crumb_urls = crumb_urls | append: sep | append: canonical_url
+    when 'collection'
+      if collection.title != blank
+        assign crumb_names = crumb_names | append: sep | append: collection.title
+        assign crumb_urls = crumb_urls | append: sep | append: canonical_url
+      endif
+    when 'article'
+      if article
+        assign crumb_names = crumb_names | append: sep | append: blog.title
+        assign crumb_urls = crumb_urls | append: sep | append: request.origin | append: blog.url
+        assign crumb_names = crumb_names | append: sep | append: article.title
+        assign crumb_urls = crumb_urls | append: sep | append: canonical_url
+      endif
+    when 'blog'
+      if blog.title != blank
+        assign crumb_names = crumb_names | append: sep | append: blog.title
+        assign crumb_urls = crumb_urls | append: sep | append: canonical_url
+      endif
+    when 'page'
+      if page.title != blank
+        assign crumb_names = crumb_names | append: sep | append: page.title
+        assign crumb_urls = crumb_urls | append: sep | append: canonical_url
+      endif
+  endcase
+
+  assign names = crumb_names | split: sep
+  assign urls = crumb_urls | split: sep
 -%}
+
+{%- comment -%}
+  One crumb is not a trail. Google requires two or more ListItems, so a page with
+  nothing but the store name emits nothing at all rather than an invalid item.
+{%- endcomment -%}
+{%- if names.size > 1 -%}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position": 1,
-      {%- comment -%}
-        The first crumb is deliberately shop.name and NOT a translation key.
-
-        `theme check` caught the first version of this line: it used
-        'general.breadcrumbs.home' | t | default: 'Home', and that key does not
-        exist in this theme's locales. The `default` filter does NOT save it,
-        because a missing translation renders the literal string
-        "Translation missing: en.general.breadcrumbs.home", which is not blank, so
-        `default` never fires and Google would have been served that text as the
-        breadcrumb name on every page.
-
-        shop.name needs no locale file, is already the brand as the merchant typed
-        it, and matches the Organization node the theme emits, so the two agree
-        instead of one saying "Home" and the other the company name.
-      {%- endcomment -%}
-      "name": {{ shop.name | json }},
-      "item": {{ request.origin | append: routes.root_url | json }}
-    }
-    {%- if template.name == 'product' -%}
-      {%- if collection and collection.title != blank -%}
-        ,{
-          "@type": "ListItem",
-          "position": 2,
-          "name": {{ collection.title | json }},
-          "item": {{ request.origin | append: collection.url | json }}
-        },
-        {
-          "@type": "ListItem",
-          "position": 3,
-          "name": {{ product.title | json }},
-          "item": {{ request.origin | append: product.url | json }}
-        }
-      {%- else -%}
-        ,{
-          "@type": "ListItem",
-          "position": 2,
-          "name": {{ product.title | json }},
-          "item": {{ request.origin | append: product.url | json }}
-        }
-      {%- endif -%}
-    {%- elsif template.name == 'collection' and collection.title != blank -%}
-      ,{
-        "@type": "ListItem",
-        "position": 2,
-        "name": {{ collection.title | json }},
-        "item": {{ request.origin | append: collection.url | json }}
-      }
-    {%- elsif template.name == 'article' and article -%}
-      ,{
-        "@type": "ListItem",
-        "position": 2,
-        "name": {{ blog.title | json }},
-        "item": {{ request.origin | append: blog.url | json }}
-      },
+    {%- for name in names -%}
+      {%- unless forloop.first %},{% endunless -%}
       {
         "@type": "ListItem",
-        "position": 3,
-        "name": {{ article.title | json }},
-        "item": {{ request.origin | append: article.url | json }}
+        "position": {{ forloop.index }},
+        "name": {{ name | json }},
+        "item": {{ urls[forloop.index0] | json }}
       }
-    {%- elsif template.name == 'page' and page.title != blank -%}
-      ,{
-        "@type": "ListItem",
-        "position": 2,
-        "name": {{ page.title | json }},
-        "item": {{ request.origin | append: page.url | json }}
-      }
-    {%- endif -%}
+    {%- endfor -%}
   ]
 }
 </script>
+{%- endif -%}

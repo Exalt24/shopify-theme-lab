@@ -3,11 +3,14 @@
 assets/
 config/
 locales/
-templates/
+templates/*
+!templates/product.json
 sections/*
 !sections/product-spec-table.liquid
+!sections/main-product.liquid
 snippets/*
 !snippets/seo-breadcrumb-jsonld.liquid
+!snippets/spec-value.liquid
 layout/
 node_modules/
 .shopify/

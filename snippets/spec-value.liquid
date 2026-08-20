@@ -1,0 +1,56 @@
+{% comment %}
+  Render ONE metafield value as a plain string, correctly for its type.
+
+  WHY THIS IS A SNIPPET AND NOT INLINE. The first version of the spec table had a
+  `case` on the type for the visible HTML and then serialised the RAW `.value` into
+  the JSON-LD, so the exact types the switch existed to protect against, dimension,
+  weight, volume, rating, list, went into structured data as Shopify objects like
+  {"value":12.0,"unit":"MILLIMETERS"}. schema.org PropertyValue wants Text, Number
+  or Boolean there. Writing the logic once and rendering it in both places is the
+  only way those two can never disagree again.
+
+  Accepts:
+    field - the metafield drop
+{% endcomment %}
+{%- liquid
+  case field.type
+    when 'dimension', 'weight', 'volume'
+      echo field.value.value | append: ' ' | append: field.value.unit | downcase
+    when 'rating'
+      echo field.value.value | append: ' / ' | append: field.value.scale_max
+    when 'money'
+      echo field.value | money
+    when 'date'
+      echo field.value | date: '%d %B %Y'
+    when 'date_time'
+      echo field.value | date: '%d %B %Y, %H:%M'
+    when 'boolean'
+      if field.value
+        echo 'Yes'
+      else
+        echo 'No'
+      endif
+    when 'list.single_line_text_field', 'list.number_integer', 'list.number_decimal'
+      echo field.value | join: ', '
+    when 'rich_text_field'
+      comment
+        The raw value is an AST, and printing it emits the whole tree as text.
+        metafield_tag is Shopify's own renderer for it.
+      endcomment
+      echo field | metafield_tag | strip_html | strip
+    when 'url'
+      echo field.value | escape
+    else
+      comment
+        Reference types resolve to a drop rather than a string, so print something
+        a human recognises instead of an object. Anything else is a scalar.
+      endcomment
+      if field.value.title
+        echo field.value.title
+      elsif field.value.name
+        echo field.value.name
+      else
+        echo field.value
+      endif
+  endcase
+-%}
