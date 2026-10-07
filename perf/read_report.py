@@ -8,10 +8,10 @@ those are reproducible and specific.
 import io
 import json
 
-d = json.load(io.open(
-    "report.json"
-    r"report.json",
-    encoding="utf-8"))
+import sys
+
+# Usage: python read_report.py path/to/lighthouse-report.json
+d = json.load(io.open(sys.argv[1], encoding="utf-8"))
 
 print("url  :", d.get("finalDisplayedUrl") or d.get("finalUrl"))
 print("form :", (d.get("configSettings") or {}).get("formFactor"))
