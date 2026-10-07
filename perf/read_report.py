@@ -8,10 +8,10 @@ those are reproducible and specific.
 import io
 import json
 
-d = json.load(io.open(
-    r"C:\Users\Dax\AppData\Local\Temp\claude\C--Projects-Professional"
-    r"\0e853b52-1086-4101-b173-25d4e2492560\scratchpad\mse-lh.json",
-    encoding="utf-8"))
+import sys
+
+# Usage: python read_report.py path/to/lighthouse-report.json
+d = json.load(io.open(sys.argv[1], encoding="utf-8"))
 
 print("url  :", d.get("finalDisplayedUrl") or d.get("finalUrl"))
 print("form :", (d.get("configSettings") or {}).get("formFactor"))

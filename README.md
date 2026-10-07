@@ -2,7 +2,7 @@
 
 Liquid work on a real Shopify development store: two additions to a live theme
 that fix gaps the stock theme leaves open, plus a measured performance diagnosis
-of a public production store.
+of a public storefront.
 
 Store: `dac-dev-store.myshopify.com` (development store, password-protected).
 Theme validated with Shopify's own `theme check` and pushed with the Shopify CLI.
@@ -73,7 +73,7 @@ Two more bugs worth knowing, both of which looked fine until they did not:
 ### Layout came from reading five real PDPs, not from taste
 
 Captured at 1440px and 390px: DigiKey, Edmund Optics, Fisher Scientific,
-McMaster-Carr, and MSE Supplies itself.
+McMaster-Carr, and an industrial-supplies storefront in the same space.
 
 - **The pair stays side by side at every width.** McMaster holds a 38/62 split at
   374px. Stacking on mobile, which this did under 480px, turns a 20-spec table into
@@ -107,11 +107,13 @@ correct until the day someone adds a typed field.
 Renders nothing at all when the namespace is empty, so it can sit in the default
 product template without leaving an orphan heading on products that have no specs.
 
-### 3. `perf/` — measurement tooling, and one thing that did not work
+### 3. `perf/`: measurement tooling, and one thing that did not work
 
 **`perf/app-cost.mjs` is the useful one.** It attributes bytes and main-thread time
 to each third-party origin on a page, which turns "optimize Core Web Vitals" into a
-list sorted by cost. Run against a real production storefront it produced this:
+list sorted by cost. Run against a public industrial-supplies storefront it produced this (the raw
+reports are not committed, because they name that store; rerun the script against
+any public product page to reproduce the method):
 
 | Origin | KB | CPU ms |
 |---|---|---|
@@ -160,7 +162,7 @@ HTML, matching it at render time did not work either. Both failures were silent.
 
 ### 4. The original diagnosis
 
-Lighthouse against a **public production Shopify store**, mobile emulation,
+Lighthouse against a **public Shopify storefront** in the same industrial-supplies space, mobile emulation,
 simulated throttling (150 ms RTT, 1.6 Mbps, 4x CPU slowdown):
 
 | Metric | Value |
