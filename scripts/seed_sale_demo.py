@@ -4,11 +4,11 @@
 Dev store only (dac-dev-store, synthetic data). It creates, and only if missing:
   - product metafield definition  custom.bundle_items  (list of products)
   - collection metafield definition custom.sale_ends_at (date and time)
-  - a bundle product "Rider Starter Bundle" (its OWN SKU and price, components listed in bundle_items)
+  - a bundle product "Rider Starter Bundle" (its own price, components listed in bundle_items; no SKU is set)
   - a smart collection "Winter Sale" (tag winter-sale) using the sale-event collection template
   - a page "Winter sale" using the sale-landing page template
   - an automatic 10% discount on that collection that ENDS AT THE SAME INSTANT as the countdown
-Every object is published to the Online Store channel, because productCreate does not publish and the
+The product, collection and page are published to the Online Store channel, because productCreate does not publish and the
 storefront then serves a 404 that looks exactly like a broken theme.
 
 usage: SHOPIFY_ADMIN_TOKEN=... python scripts/seed_sale_demo.py [--shop dac-dev-store.myshopify.com] [--check]

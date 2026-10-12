@@ -12,7 +12,7 @@ Input: `design-source/winter-sale.html` (one HTML file). Output: `sections/sale-
 | 5 | English text baked into the markup. | Merchant text is a setting; fixed words go through `t`. | `locales/en.default.json` |
 | 6 | Content baked into the markup (product names, prices). | The bundle reads real products from a metafield list and real prices from the variants, formatted with `money` so Markets currency applies. | `sections/bundle-contents.liquid` |
 | 7 | `DOMContentLoaded` script. In the theme editor the section is re-rendered into the live page and page-load JavaScript does not run again, so a timer silently stops or doubles. | A custom element: `connectedCallback` and `disconnectedCallback` fire on every insert and removal. | `assets/sale-countdown.js` |
-| 8 | A countdown to `new Date('2026-11-27T23:59:59')` is the visitor's own time zone, so the same sale ends at different moments for a US, UK and Australian customer. | One absolute instant. A zone picker, a UTC metafield override, the sale's zone always shown, and the visitor's local time when it differs. | `assets/sale-countdown.js` |
+| 8 | A countdown to `new Date('2026-11-27T23:59:59')` is the visitor's own time zone, so the same sale ends at different moments for a US, UK and Australian customer. | One absolute instant. A zone picker, a date-time metafield override (read with the shop's offset), the sale's zone always shown, and the visitor's local time when it differs. | `assets/sale-countdown.js` |
 | 9 | No fallback. | With JavaScript off or an unreadable date the static text from Liquid stays and the section still reads correctly. | `sale-event-hero.liquid`, `sale-countdown.js` |
 | 10 | Placeholder boxes instead of images. | `image_url` plus `image_tag` with width and height, srcset, `loading=eager` and `fetchpriority=high` only when the section is first on the page and lazy otherwise. | `sale-event-hero.liquid`, `bundle-contents.liquid` |
 
@@ -30,7 +30,7 @@ Input: `design-source/winter-sale.html` (one HTML file). Output: `sections/sale-
 - The amber pill button and the gradient hero: the section uses the theme's own button and colour scheme, so the hue
   follows the theme settings. The static preview sets the theme's text colour to the design's navy to show that a
   colour setting carries through; the button stays the theme's.
-- The three-card product grid with red "Sale" tags and the green "You save" figure on each card: the templates use
+- The three-card product grid with a red "Sale" tag on each card (the green "You save" figure is on the bundle total, not on the cards): the templates use
   Dawn's own featured-collection and collection grid sections. They render on the real store (`docs/STORE_CHECK.md`
   items 1 and 2) but were not built or customised here, and an automatic discount cannot show a sale price on a
   product card from Liquid.

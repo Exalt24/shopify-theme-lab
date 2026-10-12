@@ -18,7 +18,7 @@ $label-column: 38%;
 // 1280px and read as two unrelated columns.
 $max-measure: 44rem;
 
-// Hairline rules rather than zebra striping. Three of the four reference tables
+// Hairline rules rather than zebra striping. Three of the five reference tables
 // use rules; DigiKey is the only striper and it pairs striping with a four-column
 // layout that linearises unrelated specs into one sequence for a screen reader.
 $rule: rgba(128, 128, 128, 0.25);
@@ -27,8 +27,8 @@ $row-padding: 0.6rem;
 $gap: 0.75rem;
 $stack-below: 480px;
 
-// The label is furniture, the value is what the buyer came for. Both reference
-// sites disagree about how to treat the label and agree the value carries the
+// The label is furniture, the value is what the buyer came for. The reference
+// tables disagree about how to treat the label and agree the value carries the
 // contrast.
 $label-opacity: 0.72;
 

@@ -31,10 +31,10 @@ What the sections do that the generated page did not:
 - **The countdown ends at one absolute instant.** A sale advertised for a US, UK and Australian audience cannot use
   the visitor's own clock to decide when it ends. The end comes from a collection date-time metafield (best, because
   the collection page and the landing page then agree) or from a typed time plus a chosen zone. The sale's zone is
-  always shown, plus the visitor's local time when it differs. With JavaScript off or an unreadable date the section
+  shown whenever it is known (from the metafield or the zone picked), plus the visitor's local time when it differs. With JavaScript off or an unreadable date the section
   still reads correctly.
 - **`<sale-countdown>` is a custom element**, so the theme editor's re-render creates and removes timers correctly.
-  Impossible dates (31 February, 24:00) are refused identically in every browser; `Date.parse` alone rolls them forward in some.
+  Impossible dates (31 February, 24:00) are refused by a round-trip check that does not depend on the browser's date parser (`Date.parse` alone rolls them forward in some); the tests run in Chromium only.
 - **The countdown only counts down.** The seed also creates an automatic discount with the same end instant. The two
   are equal at seed time only: the countdown reads the collection metafield and the discount has its own end date in
   the admin, and Liquid cannot read a discount, so when the sale is moved both must be edited (a Shopify Function
@@ -109,7 +109,7 @@ as the project `sale-sections-preview`.
 Not done, stated plainly: the editor was read and not used to build or save a page by hand, the sale was not taken
 through Shopify's hosted checkout page (the discount was read from a real cart), the quantities of parts in a bundle are
 always one, and a bundle with several variants prices its first available one.
-The typed-time zone picker offers five fixed offsets (no daylight-saving ones), so a sale between roughly March and
+The typed-time zone picker offers five fixed offsets (one is a summer-time offset for Sydney and Melbourne; none follows the changeover), so a sale between roughly March and
 October should use the collection metafield instead. The colour-scheme options `accent-2` and `background-2` fail
 contrast on this store's own colours (`accent-2` #45c0b6, `background-2` #6b6b6b) (the hero's colour-scheme setting carries a generic hint to check the heading's contrast after changing it). Only English locale keys exist for the new sections.
 
@@ -246,7 +246,7 @@ Third party came to **3,697 KB and 457 ms of CPU against the store's own 166 ms*
 
 It separates Shopify's own platform requests from apps (matched by URL, so Shopify's CDN is not counted as a third-party origin), because counting the
 platform as app cost inflates every number and points a merchant at savings they
-cannot have. The figures quoted below come from the first version of the tool, which grouped requests by origin only and so counted some Shopify CDN requests as third party: read them as an upper bound. It deliberately does not recommend removals: whether a review widget
+cannot have. The app-cost figures quoted in this section come from the first version of the tool, which grouped requests by origin only and so counted some Shopify CDN requests as third party: read them as an upper bound. It deliberately does not recommend removals: whether a review widget
 earns 800 KB is a revenue question, not a bytes question.
 
 **`perf/audit.mjs`** runs Lighthouse against a password-gated development store,
@@ -321,7 +321,7 @@ shopify theme push --unpublished        # pushed to the dev store
 `theme check` on the spec table and breadcrumb additions reported 48 remaining offenses across 44 files, all pre-existing in the stock
 theme. Re-run on 2026-10-12 with every check enabled and the sale sections added, the whole theme reported 495 offenses (the default configuration reports far fewer; an independent overlay run on Dawn v9.0.0 gave 16): 480 are
 `MatchingTranslations` (450 are the 15 keys of the sale sections, present only in `en.default.json` and not in the 30 other
-locale files, 30 are one stock key) and the rest are the stock ones. The sale sections' own files report 0. Three of the 16 offenses an overlay on bare Dawn v9.0.0 reports are in the tracked stock `sections/main-product.liquid`, which renders `snippets/selling-plans.liquid` and `assets/selling-plans.js` that are not tracked here (the dev store has them). The older `snippets/seo-breadcrumb-jsonld.liquid` reports one `OrphanedSnippet` when the repo is overlaid on stock Dawn, because the layout that would render it is not tracked here: it is rendered from `layout/theme.liquid` (`{% render 'seo-breadcrumb-jsonld' %}` inside `<head>`).
+locale files, 30 are one stock key) and the rest are the stock ones. The sale sections' own files report 0. Three of the 16 offenses an overlay on bare Dawn v9.0.0 reports are in the tracked stock `sections/main-product.liquid`: it renders `snippets/selling-plans.liquid` and `assets/selling-plans.js`, which are not tracked here (the dev store has them), and the third is stock Dawn's own `UndefinedObject 'continue'`. The older `snippets/seo-breadcrumb-jsonld.liquid` reports one `OrphanedSnippet` when the repo is overlaid on stock Dawn, because the layout that would render it is not tracked here: it is rendered from `layout/theme.liquid` (`{% render 'seo-breadcrumb-jsonld' %}` inside `<head>`).
 
 The rendered output IS verified, in a real browser at 1280px and 390px: the spec
 table renders as a `dl` with real metafield values, the breadcrumb emits a valid
