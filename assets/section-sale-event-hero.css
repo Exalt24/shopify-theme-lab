@@ -105,7 +105,7 @@
   opacity: 0.85;
 }
 
-/* The local-time line keeps its space while hidden, so showing it later never pushes the page down (CLS). */
+/* The local-time line keeps one line of space while hidden. Where the text then wraps to two lines (a phone) the content below moves down once, by about 30px on a 390px screen (a layout shift of about 0.008, measured on the static preview); it does not move at all when the line stays hidden. */
 .sale-hero__local[hidden] {
   display: block;
   visibility: hidden;

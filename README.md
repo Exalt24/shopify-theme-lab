@@ -97,7 +97,7 @@ the preview builder read (`colors_text`, `colors_accent_1`, ...) with colour-sch
 builder warns and falls back to a plain palette (the sections themselves expect the older colour-scheme classes). It
 stops without changing anything if the two Dawn files are missing. It reads the dev store's public Storefront token from
 `SHOPIFY_STOREFRONT_TOKEN` (or a file named by `SHOPIFY_STOREFRONT_TOKEN_FILE`) and falls back to stub products
-without one; Node 20 or newer is needed for the tests and the preview (Playwright 1.64), Node 20.19 or newer for `npm run css` (Sass), Node 22.19 or newer for `perf/audit.mjs` (Lighthouse), Python 3 only for the seed script.
+without one; Node 20 or newer is needed for the tests and the preview (Playwright 1.64), Node 20.19 or newer for `npm run css` (Sass), Node 22.19 or newer for `perf/audit.mjs` (Lighthouse), Python 3 only for the seed script and `perf/read_report.py`.
 Its buttons and product links are inert, its product images are hot-linked from the dev store's CDN, its countdown
 ends at the fixed instant 2026-11-28T04:59:00Z (after which it shows the ended state), and the theme's text colour is
 set to the source design's navy to show that a colour setting carries through. It is deployed to Cloudflare Pages
@@ -186,7 +186,7 @@ Two more bugs worth knowing, both of which looked fine until they did not:
 - **The JSON-LD serialised raw values** while the visible HTML went through a type
   switch, so exactly the types the switch existed to protect against reached
   structured data as Shopify objects like `{"value":12.0,"unit":"MILLIMETERS"}`.
-  Both paths now share `snippets/spec-value.liquid`, so they cannot disagree again.
+  Both paths now share the value rendering in `snippets/spec-value.liquid` (the spec names are formatted separately in the two places and can differ in capitalisation).
 
 ### Layout came from reading five real PDPs, not from taste
 
@@ -301,7 +301,7 @@ simulated throttling (150 ms RTT, 1.6 Mbps, 4x CPU slowdown):
 | Main-thread script evaluation | 5,441 ms |
 
 The diagnosis those numbers support: **two thirds of the transferred weight is
-third-party**, and 5.4 seconds of main-thread script evaluation is the largest measured time cost in the
+third-party**, and 5.4 seconds of main-thread script evaluation is the largest itemised component of main-thread work in the
 table (images are not itemised), so the first job is auditing which apps still earn
 their script tag, not image compression. CLS being fine matters too, because it means the layout is not
 the problem and effort spent there would be wasted.
@@ -334,8 +334,8 @@ It needed the storefront password, entered by hand at the time (the store check 
 gates everything: `theme dev`, `theme share` and the preview URL all sit behind
 it and no Admin API mutation exists to lift it.
 
-**A linter is not a validator.** `theme check` passed a file that `theme push`
+**A linter is not a validator.** With the `theme check` version I had at the time, it passed a file that `theme push`
 then rejected outright, because Liquid does not allow a filter inside an `if`
-condition. The rejected file silently stayed at its previous version on the
+condition (the current CLI's `theme check` does report that case). The rejected file silently stayed at its previous version on the
 store, so the browser check kept showing the old output and it looked like the
 fix had not worked.
