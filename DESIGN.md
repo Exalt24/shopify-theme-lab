@@ -42,4 +42,4 @@ There are no hex literals in the section CSS or Liquid. To check: `grep -E "#[0-
 
 ## What is deliberately not here
 
-No page-builder output, no app embed, no claim about any third-party bundle app.
+No page-builder output and no app embed: native sections only.

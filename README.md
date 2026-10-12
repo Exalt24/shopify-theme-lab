@@ -33,8 +33,10 @@ What the sections do that the generated page did not:
   still reads correctly.
 - **`<sale-countdown>` is a custom element**, so the theme editor's re-render creates and removes timers correctly.
   Impossible dates (31 February, 24:00) are refused identically in every browser; `Date.parse` alone rolls them forward in some.
-- **The countdown only counts down.** The seed also creates an automatic discount that ends at the same instant, so
-  what the page promises and what checkout charges agree.
+- **The countdown only counts down.** The seed also creates an automatic discount with the same end instant. The two
+  are equal at seed time only: the countdown reads the collection metafield and the discount has its own end date in
+  the admin, and Liquid cannot read a discount, so when the sale is moved both must be edited (a Shopify Function
+  reading the metafield would tie them).
 - **The bundle is its own product with its own price.** The saving is the sum of the parts minus the bundle price,
   shown only when positive. The button is disabled while any listed part is sold out. This is a display guard: a bundle
   product is not stock-linked to its parts the way Shopify's own Bundles app does it (an order contains only the bundle
@@ -42,7 +44,6 @@ What the sections do that the generated page did not:
   discount that varies by cart needs a Shopify Function or a bundle app. "Bought separately" is the parts' list
   price, so the parts must stay out of any discounted collection: a review found that tagging the parts into the
   10% sale made the page say "You save" while the parts were cheaper than the bundle, and the seed now keeps them out.
-  Nothing here claims experience with third-party bundle or page-builder apps.
 
 How it was checked (figures from runs on 2026-10-12):
 
@@ -59,9 +60,17 @@ The typed-time zone picker offers five fixed offsets (no daylight-saving ones), 
 October should use the collection metafield instead. The colour-scheme options `accent-2` and `background-2` fail
 contrast on the default preset (the schema warns about it). Only English locale keys exist for the new sections.
 
-This repository tracks only the files I wrote. It is an overlay on Shopify's stock Dawn theme (the stock files are
-git-ignored on purpose, see `.gitignore`), so to try it, copy these files into a Dawn-based theme and run
-`SHOPIFY_ADMIN_TOKEN=... python scripts/seed_sale_demo.py` against a development store.
+This repository is an overlay on Shopify's stock Dawn theme (MIT, see `LICENSE`). Most stock files are git-ignored on
+purpose (see `.gitignore`), but a few edited or stock files are tracked because earlier work changed them:
+`sections/main-product.liquid`, `templates/product.json` and the full `locales/en.default.json` (stock keys plus the
+keys I added). To try the sale sections in your own Dawn-based theme, copy only `sections/sale-event-hero.liquid`,
+`sections/bundle-contents.liquid`, `assets/sale-countdown.js`, `assets/section-sale-event-hero.css`,
+`assets/section-bundle-contents.css` and the two `templates/*sale*.json`, and merge the `sections.sale_event_hero` and
+`sections.bundle_contents` keys into your own locale file rather than copying mine over it.
+`scripts/seed_sale_demo.py` seeds MY development store only (it refuses any other shop and uses Shopify's sample
+product handles), so on another store create the two metafield definitions (`custom.bundle_items`,
+`custom.sale_ends_at`) and the discount by hand. The tests need Playwright: `npm install`, then `npm test`
+and `npm run test:mutants`.
 
 ---
 
@@ -253,8 +262,10 @@ shopify theme check                     # my two files: zero offenses
 shopify theme push --unpublished        # pushed to the dev store
 ```
 
-`theme check` reports 48 remaining offenses across 44 files. **All of them are
-pre-existing in the stock theme**, none in the four files added or edited here.
+`theme check` on the two additions reported 48 remaining offenses across 44 files, all pre-existing in the stock
+theme. Re-run on 2026-10-12 with the sale sections added, the whole theme reports 495 offenses: 450 are
+`MatchingTranslations` (the 15 keys of the sale sections exist only in `en.default.json`, not in the 30 other
+locale files) and the rest are the stock ones. The new files themselves report 0.
 
 The rendered output IS verified, in a real browser at 1280px and 390px: the spec
 table renders as a `dl` with real metafield values, the breadcrumb emits a valid

@@ -1,10 +1,11 @@
 {
   "name": "shopify-theme-lab",
   "version": "1.0.0",
-  "description": "Liquid work on a real Shopify development store: two additions to a live theme\r that fix gaps the stock theme leaves open, plus a measured performance diagnosis\r of a public production store.",
+  "description": "Liquid work on a Shopify development store: Liquid additions to a Dawn-based theme, a Claude-generated sale page converted to native sections, and a measured performance diagnosis.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node tests/countdown.test.cjs",
+    "test:mutants": "node tests/countdown_mutants.cjs",
     "css": "sass styles/spec-table.scss assets/spec-table.css --style=compressed --no-source-map",
     "css:watch": "sass --watch styles/spec-table.scss assets/spec-table.css --no-source-map",
     "check": "shopify theme check"
@@ -15,7 +16,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "type": "commonjs",
   "bugs": {
     "url": "https://github.com/Exalt24/shopify-theme-lab/issues"
@@ -25,6 +26,7 @@
     "lighthouse": "^13.4.1"
   },
   "devDependencies": {
+    "playwright": "^1.50.0",
     "sass": "^1.103.1"
   }
 }
