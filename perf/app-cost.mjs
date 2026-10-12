@@ -18,7 +18,7 @@
  * earns 800 KB is a merchant decision about revenue, not a developer decision about
  * bytes. The tool produces the number; the conversation is theirs.
  *
- *   node perf/app-cost.mjs <url> [password]
+ *   [STORE_PASSWORD=<password>] node perf/app-cost.mjs <url>
  */
 import { writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -52,6 +52,10 @@ const PLATFORM = [
 ];
 
 const isPlatform = (u) => PLATFORM.some((re) => re.test(u));
+/** A request is judged by its full URL (the platform patterns need a path), so platform requests served from
+ *  Shopify's CDN are grouped under one row instead of being counted as a third-party origin. */
+const PLATFORM_ORIGIN = 'https://shopify-platform (matched by URL)';
+const originOf = (u) => (isPlatform(u) ? PLATFORM_ORIGIN : new URL(u).origin);
 
 const browser = await chromium.launch({ headless: true });
 const ctx = await browser.newContext({
@@ -77,7 +81,7 @@ page.on('response', async (res) => {
   try {
     const url = res.url();
     if (url.startsWith('data:')) return;
-    const o = new URL(url).origin;
+    const o = originOf(url);
     const type = res.request().resourceType();
     let size = 0;
     try {
@@ -126,7 +130,7 @@ for (let i = 0; i < samples.length; i += 1) {
 const cpuByOrigin = new Map();
 for (const [url, ms] of selfTimeByUrl) {
   try {
-    const o = new URL(url).origin;
+    const o = originOf(url);
     cpuByOrigin.set(o, (cpuByOrigin.get(o) || 0) + ms);
   } catch { /* inline script, no URL */ }
 }
@@ -138,7 +142,7 @@ const rows = [...byOrigin.values()].map((r) => ({
   cpu_ms: Math.round(cpuByOrigin.get(r.origin) || 0),
   kb: Math.round(r.bytes / 1024),
   script_kb: Math.round(r.scriptBytes / 1024),
-  kind: r.origin.includes(host) || isPlatform(r.origin) ? 'store/platform' : 'third party',
+  kind: r.origin === PLATFORM_ORIGIN || r.origin.includes(host) || isPlatform(r.origin) ? 'store/platform' : 'third party',
 }));
 
 // Anything served from the shop's own domain still needs splitting: Shopify's

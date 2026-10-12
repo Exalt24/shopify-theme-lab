@@ -28,3 +28,5 @@ snippets/*
 layout/
 node_modules/
 .shopify/
+# app-cost output names the host it measured, so it is never tracked
+perf/app-cost-*.json

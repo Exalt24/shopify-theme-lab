@@ -244,9 +244,9 @@ any public product page to reproduce the method):
 Third party came to **3,697 KB and 457 ms of CPU against the store's own 166 ms**,
 64% of the bytes on the page. One tag manager container was 1,985 KB.
 
-It separates Shopify's own platform scripts from apps, because counting the
+It separates Shopify's own platform requests from apps (matched by URL, so Shopify's CDN is not counted as a third-party origin), because counting the
 platform as app cost inflates every number and points a merchant at savings they
-cannot have. It deliberately does not recommend removals: whether a review widget
+cannot have. The figures quoted below come from the first version of the tool, which grouped requests by origin only and so counted some Shopify CDN requests as third party: read them as an upper bound. It deliberately does not recommend removals: whether a review widget
 earns 800 KB is a revenue question, not a bytes question.
 
 **`perf/audit.mjs`** runs Lighthouse against a password-gated development store,
@@ -314,7 +314,7 @@ beacon, and lab numbers under 4x CPU throttling are deliberately pessimistic.
 ## Verifying it
 
 ```bash
-shopify theme check                     # my two files: zero offenses
+shopify theme check                     # the sale sections' own files: zero offenses
 shopify theme push --unpublished        # pushed to the dev store
 ```
 
