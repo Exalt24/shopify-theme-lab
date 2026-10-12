@@ -21,7 +21,7 @@ scheme or the theme fonts re-themes the sections without anyone touching Liquid 
 | Amber pill button | the theme's own `.button` | one button style across the store; the hue now comes from the theme, which is a deliberate change from the design |
 | Timer tiles, borders, card shadow | `rgba(var(--color-foreground), ...)` at 0.06 to 0.3 depending on use (fills, borders, the card shadow and the dashed totals rule) | tints of the text colour stay legible on any scheme |
 | Fixed font stack | `--font-heading-family`, `--font-heading-weight` | the theme's own fonts |
-| Pixel (`px`) sizes | rem values on the theme's 10px root (`1.3rem` is 13px) | the theme sets `html { font-size: 62.5% }` |
+| Pixel (`px`) sizes | rem values on the theme's 10px root (`1.3rem` is 13px) | Dawn sets the root size to `calc(var(--font-body-scale) * 62.5%)`, which is 10px at the default scale |
 
 There are no hex literals in the section CSS or Liquid. To check: `grep -E "#[0-9a-fA-F]{3,8}" sections/sale-event-hero.liquid sections/bundle-contents.liquid assets/section-sale-event-hero.css assets/section-bundle-contents.css`.
 

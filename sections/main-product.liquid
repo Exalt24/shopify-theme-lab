@@ -534,10 +534,9 @@
         Specifications from the `specs` metafield namespace, rendered into THIS
         node rather than a second Product block.
 
-        A separate node carrying only @id and additionalProperty does not merge:
-        Google's merge is identifier-based and this node has no @id, so a second
-        block simply becomes a second Product entity with no `name`, which fails
-        a required Product property. additionalProperty is the correct
+        A separate node carrying only @id and additionalProperty did not merge on the live
+        page: this node has no @id, so a second block simply became a second Product
+        entity with no `name`, a required Product property. additionalProperty is the correct
         schema.org home for arbitrary specs and it belongs on the entity that
         already has name, image, offers and url.
 

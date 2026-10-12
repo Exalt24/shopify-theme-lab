@@ -1,8 +1,8 @@
 // Specification table styles, authored in SCSS and compiled into the theme.
 //
-// WHY A BUILD STEP RATHER THAN LIQUID. Shopify dropped support for .scss.liquid
-// assets: the platform no longer compiles Sass, so a theme wanting SCSS has to
-// build it and commit the CSS. That is the modern arrangement and it is better
+// WHY A BUILD STEP RATHER THAN LIQUID. Shopify has deprecated Sass in themes and
+// advises compiling locally, so a theme wanting SCSS builds it and commits the
+// CSS. That is the arrangement Shopify points to and it is better
 // anyway, because the compile fails locally where someone can see it rather than
 // silently serving broken CSS from a CDN.
 //

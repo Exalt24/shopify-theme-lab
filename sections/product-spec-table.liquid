@@ -58,12 +58,12 @@
   {%- endcomment -%}
   {%- comment -%}
     Styles come from a COMPILED SCSS asset rather than an inline style block.
-    Shopify no longer compiles .scss.liquid, so a theme wanting SCSS builds it and
-    commits the CSS: npm run css. The compile then fails locally where someone can
+    Shopify has deprecated Sass in themes and advises compiling locally, so a theme
+    wanting SCSS builds it and commits the CSS: npm run css. The compile then fails locally where someone can
     see it, instead of silently serving broken CSS from a CDN.
 
-    stylesheet_tag rather than a raw link, because Shopify dedupes it: the file is
-    requested once even when the section appears twice on a page.
+    stylesheet_tag rather than a raw link, because it is the tag Shopify documents for theme
+    stylesheets; two sections on one page still reference one URL, so the file is fetched once.
   {%- endcomment -%}
   {{ 'spec-table.css' | asset_url | stylesheet_tag }}
 

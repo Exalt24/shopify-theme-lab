@@ -76,7 +76,7 @@ one "3:59 PM GMT+11"; with JavaScript off the static label and the bundle still 
 the wax at zero stock the button reads Sold out, and the inventory was restored exactly; a theme colour change
 carries through to the hero and the bundle heading; the theme editor lists both sections, shows their settings, and
 offers them in the Add section list; a theme font change carries through to both sections; Lighthouse (mobile, cold, five
-runs) has a median of 91, and the weight is Shopify's and Dawn's own scripts and stylesheets (the three files these sections
+runs) has a median of 91, and the weight is Shopify's and Dawn's own (scripts, stylesheets, fonts, the preview bar and other platform requests; the three files these sections
 add transfer 5.2 KB); axe finds nothing inside either section at 390px and 1280px.
 
 ![The sale landing page on the real storefront](docs/store-check/landing-desktop-manila.png)
@@ -97,7 +97,7 @@ the preview builder read (`colors_text`, `colors_accent_1`, ...) with colour-sch
 builder warns and falls back to a plain palette (the sections themselves expect the older colour-scheme classes). It
 stops without changing anything if the two Dawn files are missing. It reads the dev store's public Storefront token from
 `SHOPIFY_STOREFRONT_TOKEN` (or a file named by `SHOPIFY_STOREFRONT_TOKEN_FILE`) and falls back to stub products
-without one; Node 20.19 or newer is needed for the tests and the preview (the Playwright and Sass versions in `package-lock.json`), Node 22.19 or newer for `perf/audit.mjs` (Lighthouse), Python 3 only for the seed script.
+without one; Node 20 or newer is needed for the tests and the preview (Playwright 1.64), Node 20.19 or newer for `npm run css` (Sass), Node 22.19 or newer for `perf/audit.mjs` (Lighthouse), Python 3 only for the seed script.
 Its buttons and product links are inert, its product images are hot-linked from the dev store's CDN, its countdown
 ends at the fixed instant 2026-11-28T04:59:00Z (after which it shows the ended state), and the theme's text colour is
 set to the source design's navy to show that a colour setting carries through. It is deployed to Cloudflare Pages
@@ -115,8 +115,8 @@ contrast on this store's own colours (`accent-2` #45c0b6, `background-2` #6b6b6b
 
 This repository is an overlay on Shopify's stock Dawn theme (MIT, see `LICENSE`). Most stock files are git-ignored on
 purpose (see `.gitignore`), but a few edited or stock files are tracked because earlier work changed them:
-`sections/main-product.liquid`, `templates/product.json` and the full `locales/en.default.json` (stock keys plus the
-keys I added). To try the sale sections in your own Dawn-based theme, copy only `sections/sale-event-hero.liquid`,
+`sections/main-product.liquid` (the dev theme's edited copy of Dawn's product section), `templates/product.json` and the full `locales/en.default.json` (the dev theme's keys plus the
+15 I added). To try the sale sections in your own Dawn-based theme, copy only `sections/sale-event-hero.liquid`,
 `sections/bundle-contents.liquid`, `assets/sale-countdown.js`, `assets/section-sale-event-hero.css`,
 `assets/section-bundle-contents.css` and the two `templates/*sale*.json`, and merge the `sections.sale_event_hero` and
 `sections.bundle_contents` keys into your own locale file rather than copying mine over it.
@@ -272,7 +272,7 @@ The three reasons it failed are each worth knowing:
    whether `.gitignore` or the CLI's own exclusions did it, and Liquid renders a MISSING
    snippet as empty **with no error**, so the feature silently does not exist while
    the page looks fine.
-2. **Shopify minifies theme JS assets.** A 700 KB payload padded with comments
+2. **Theme JS assets came back minified.** A 700 KB payload padded with comments
    arrived as **286 bytes**, so the first run measured nothing at all.
 3. **Storefront HTML is CDN-cached and a cache-busting query parameter does not
    reliably bust it.** After pushing a change, the live page still served the old
@@ -301,8 +301,8 @@ simulated throttling (150 ms RTT, 1.6 Mbps, 4x CPU slowdown):
 | Main-thread script evaluation | 5,441 ms |
 
 The diagnosis those numbers support: **two thirds of the transferred weight is
-third-party**, and 5.4 seconds of main-thread script evaluation is the largest cost the
-table itemises (images are not itemised), so the first job is auditing which apps still earn
+third-party**, and 5.4 seconds of main-thread script evaluation is the largest measured time cost in the
+table (images are not itemised), so the first job is auditing which apps still earn
 their script tag, not image compression. CLS being fine matters too, because it means the layout is not
 the problem and effort spent there would be wasted.
 
@@ -319,10 +319,10 @@ shopify theme check                     # none of the default-config offenses on
 shopify theme push --unpublished        # pushed to the dev store
 ```
 
-`theme check` on the spec table and breadcrumb additions reported 48 remaining offenses across 44 files, all pre-existing in the stock
+`theme check` on the spec table and breadcrumb additions reported 48 remaining offenses across 44 files (an earlier run, configuration not recorded), all pre-existing in the stock
 theme. Re-run on 2026-10-12 with every check enabled and the sale sections added, the whole theme reported 495 offenses on the dev store's own theme (the default configuration reports far fewer; an independent overlay on stock Dawn v9.0.0 gave 16 by default and 500 with every check on): 480 are
 `MatchingTranslations` (450 are the 15 keys of the sale sections, present only in `en.default.json` and not in the 30 other
-locale files, 30 are one stock key) and the rest are the stock ones. The sale sections' own files report 0. Three of the 16 offenses an overlay on bare Dawn v9.0.0 reports are in the tracked stock `sections/main-product.liquid`: it renders `snippets/selling-plans.liquid` and `assets/selling-plans.js`, which are not tracked here (the dev store has them), and the third is stock Dawn's own `UndefinedObject 'continue'`. The older `snippets/seo-breadcrumb-jsonld.liquid` reports one `OrphanedSnippet` when the repo is overlaid on stock Dawn, because the layout that would render it is not tracked here: it is rendered from `layout/theme.liquid` (`{% render 'seo-breadcrumb-jsonld' %}` inside `<head>`).
+locale files, 30 are one key the dev theme's product section uses, `products.product.selling_plans.one_time_purchase`) and the rest are in stock Dawn. The sale sections' own files report 0. Three of the 16 offenses an overlay on bare Dawn v9.0.0 reports are in the tracked `sections/main-product.liquid` (the dev theme's edited copy, which differs from stock v9.0.0 by a `type="module"` attribute, a render of `snippets/selling-plans.liquid` with its script tag, and the structured-data block described below): the first two come from the selling-plans files that are not tracked here (the dev store has them), and the third, `UndefinedObject 'continue'`, is in stock Dawn's own code. The older `snippets/seo-breadcrumb-jsonld.liquid` reports one `OrphanedSnippet` when the repo is overlaid on stock Dawn, because the layout that would render it is not tracked here: it is rendered from `layout/theme.liquid` (`{% render 'seo-breadcrumb-jsonld' %}` inside `<head>`).
 
 The rendered output IS verified, in a real browser at 1280px and 390px: the spec
 table renders as a `dl` with real metafield values, the breadcrumb emits a valid
