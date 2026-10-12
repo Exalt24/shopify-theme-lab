@@ -21,7 +21,7 @@ Input: `design-source/winter-sale.html` (one HTML file). Output: `sections/sale-
 - `shopify theme check --output json`, filtered to the files added here: zero offenses.
 - `node tests/countdown.test.cjs`: 22 checks in Chromium with a controlled clock.
   `node tests/countdown_mutants.cjs`: 15 planted defects, all caught.
-- `node tests/liquid.test.cjs`: 18 checks that run the section Liquid itself through LiquidJS with Shopify's objects
+- `node tests/liquid.test.cjs`: 20 checks that run the section Liquid itself through LiquidJS with Shopify's objects
   stubbed. `node tests/liquid_mutants.cjs`: 16 planted defects, all caught.
 - Figures for these runs are in the README.
 

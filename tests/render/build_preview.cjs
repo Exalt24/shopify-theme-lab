@@ -41,7 +41,11 @@ function hexToRgb(hex) {
 function rootCss() {
   const raw = fs.readFileSync(path.join(ROOT, 'config', 'settings_data.json'), 'utf8').replace(/^\s*\/\*[\s\S]*?\*\/\s*/, '');
   const d = JSON.parse(raw);
-  const s = typeof d.current === 'object' && d.current ? d.current : d.presets.Default;
+  // Dawn up to v9.0.0 keeps flat colour settings (colors_text, colors_background_1, ...); newer Dawn moved to colour
+  // scheme groups. For the newer shape this builder cannot read the colours, so it says so and uses plain defaults.
+  const flat = typeof d.current === 'object' && d.current && d.current.colors_text ? d.current : d.presets && d.presets.Default && d.presets.Default.colors_text ? d.presets.Default : null;
+  if (!flat) console.warn('config/settings_data.json does not use the flat colour settings of Dawn v9.0.0 and earlier; the preview uses a plain default palette.');
+  const s = flat || { colors_text: '#121212', colors_background_1: '#ffffff', colors_background_2: '#f3f3f3', colors_solid_button_labels: '#ffffff', colors_outline_button_labels: '#121212', colors_accent_1: '#121212', colors_accent_2: '#334fb4', page_width: 1200 };
   const DESIGN_NAVY = '#0b1b2b'; // the source design's navy, set as the theme's text colour
   const c = (k) => hexToRgb(k === 'colors_text' ? DESIGN_NAVY : s[k]);
   return `:root{--font-body-family:Helvetica,Arial,sans-serif;--font-body-style:normal;--font-body-weight:400;--font-body-weight-bold:700;
@@ -101,7 +105,7 @@ html{font-size:62.5%}body{margin:0;font-size:1.5rem;letter-spacing:.06rem;line-h
 .preview-note{font:13px/1.4 Helvetica,Arial,sans-serif;padding:10px 16px;background:#fff8e1;color:#4a3b00;border-bottom:1px solid #e6d9a8}
 .preview-note b{font-weight:700}.preview-note a{color:inherit}</style></head>
 <body class="gradient">
-<p class="preview-note"><b>Static preview.</b> ${note} Rendered from the real Liquid files of <code>shopify-theme-lab</code> with Shopify's objects stubbed (${source}). It is not the Shopify storefront, which sits behind a password, so the buttons and product links do nothing here. The theme's text colour is set to the source design's navy; that is the only colour change. See also: <a href="source">the original page Claude wrote</a>, <a href="sold-out">the sold-out state</a>, <a href="./">the rebuilt page</a>.</p>
+<p class="preview-note"><b>Static preview.</b> ${note} Rendered from the real Liquid files of <code>shopify-theme-lab</code> with Shopify's objects stubbed (${source}). It is not the Shopify storefront, which sits behind a password, so the buttons and product links do nothing here. The theme's text colour is set to the source design's navy; that is the only colour change. The original page keeps its own placeholder products and prices; the render uses the dev store's real ones. See also: <a href="source">the original page Claude wrote</a>, <a href="sold-out">the sold-out state</a>, <a href="./">the rebuilt page</a>.</p>
 <script>document.addEventListener('submit',function(e){e.preventDefault()});document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(a){var h=a.getAttribute('href');if(h==='#'||h.indexOf('/products')===0||h.indexOf('/collections')===0){e.preventDefault()}}})</script>
 <main>
 ${body}

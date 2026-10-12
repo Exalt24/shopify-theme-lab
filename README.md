@@ -52,7 +52,7 @@ How it was checked (figures from runs on 2026-10-12):
 | `shopify theme check --output json`, filtered to the files added here | 0 offenses. |
 | `node tests/countdown.test.cjs`: Chromium with a controlled clock | 22 of 22. It caught a real bug of mine in the local-time line while it was being written. |
 | `node tests/countdown_mutants.cjs`: planted defects | 15 of 15 caught (timer leaks, ignored zone offset, wrong day length, no end state, HTML injection, accepted impossible dates, listener leaks, and others) |
-| `node tests/liquid.test.cjs`: the real section Liquid executed through LiquidJS with Shopify's objects stubbed | 18 of 18: saving maths, whole-number percent, sold-out part and sold-out bundle, no saving row when the bundle is not cheaper, the metafield instant reaching the script as the same moment in six render zones, collection priority, escaping, heading level, image priority, every string present in the locale file. |
+| `node tests/liquid.test.cjs`: the real section Liquid executed through LiquidJS with Shopify's objects stubbed | 20 of 20: saving maths, whole-number percent, sold-out part and sold-out bundle, no saving row when the bundle is not cheaper, the metafield instant reaching the script as the same moment in six render zones, collection priority, escaping, heading level, image priority, every string present in the locale file. |
 | `node tests/liquid_mutants.cjs`: planted defects in the Liquid | 16 of 16 caught |
 
 **What the Liquid tests are and are not.** `tests/render/shopify_liquid.cjs` is my own stand-in for the Shopify
@@ -71,7 +71,13 @@ GMT+8 where you are."), the saving reads "You save $44.95 (6.2%)" against the pa
 horizontal overflow at either width.
 
 The preview needs the stock Dawn files this repo overlays (`assets/base.css`, `config/settings_data.json`), so run it
-from a Dawn checkout with this repo's files copied over it; it stops without changing anything if they are missing.
+from a checkout of [Shopify's Dawn](https://github.com/Shopify/dawn) (MIT) with this repo's files copied over it, then
+`npm install` there. Use Dawn v9.0.0 or earlier: later Dawn replaced the flat colour settings this repo's sections and
+the preview builder read (`colors_text`, `colors_accent_1`, ...) with colour-scheme groups, and on such a checkout the
+builder warns and falls back to a plain palette (the sections themselves expect the older colour-scheme classes). It
+stops without changing anything if the two Dawn files are missing. It reads the dev store's public Storefront token from
+`SHOPIFY_STOREFRONT_TOKEN` (or a file named by `SHOPIFY_STOREFRONT_TOKEN_FILE`) and falls back to stub products
+without one; Node 18 or newer is needed (global `fetch`), Python 3 only for the seed script.
 Its buttons and product links are inert, its product images are hot-linked from the dev store's CDN, its countdown
 ends at the fixed instant 2026-11-28T04:59:00Z (after which it shows the ended state), and the theme's text colour is
 set to the source design's navy to show that a colour setting carries through. It is deployed to Cloudflare Pages

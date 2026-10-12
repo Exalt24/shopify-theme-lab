@@ -10,9 +10,11 @@ const engine = makeEngine();
 if (process.env.LIQUID_DIR) engine.options.root = [process.env.LIQUID_DIR];
 
 let failed = 0;
+let passed = 0;
 function check(name, fn) {
   try {
     fn();
+    passed += 1;
     console.log(`PASS  ${name}`);
   } catch (e) {
     failed += 1;
@@ -182,5 +184,5 @@ check('hero and bundle: every string they print resolves in the locale file', ()
   assert.ok(!all.includes('Translation missing'), `missing: ${/Translation missing[^<"]*/.exec(all)}`);
 });
 
-console.log(failed ? `${failed} FAILED` : 'all passed');
+console.log(failed ? `${failed} FAILED, ${passed} passed` : `${passed}/${passed} passed`);
 process.exit(failed ? 1 : 0);
