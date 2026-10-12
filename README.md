@@ -58,6 +58,7 @@ How it was checked (figures from runs on 2026-10-12):
 | `node tests/countdown_mutants.cjs`: planted defects | 15 of 15 caught (timer leaks, ignored zone offset, wrong day length, no end state, HTML injection, accepted impossible dates, listener leaks, and others) |
 | `node tests/liquid.test.cjs`: the real section Liquid executed through LiquidJS with Shopify's objects stubbed | 20 of 20: saving maths, whole-number percent, sold-out part and sold-out bundle, no saving row when the bundle is not cheaper, the metafield instant reaching the script as the same moment in six render zones, collection priority, escaping, heading level, image priority, every string present in the locale file. |
 | `node tests/liquid_mutants.cjs`: planted defects in the Liquid | 16 of 16 caught |
+| `node tests/spec_table.test.cjs` (`npm run test:spec`): the older spec table's grouping pass through LiquidJS | 4 of 4. Its first case failed on the earlier code and found a real bug: a group whose name was a prefix of an earlier group's name (`dim` after `dimension`) was treated as already listed and every row under it vanished, because `contains` on a string is a substring test. Fixed 2026-10-12; the fixed section was uploaded to the dev theme (Shopify accepted its syntax) and four product pages rendered without errors, but the dev store has no spec metafields, so the table itself was only exercised through LiquidJS. |
 
 **What the Liquid tests are and are not.** `tests/render/shopify_liquid.cjs` is my own stand-in for the Shopify
 objects, filters and tags the two sections use (`money`, `t`, `image_url`, `{% form %}`, `{% style %}`, a date filter
@@ -94,7 +95,7 @@ The preview needs the stock Dawn files this repo overlays (`assets/base.css`, `c
 from a checkout of [Shopify's Dawn](https://github.com/Shopify/dawn) (MIT) with this repo's files copied over it, then
 `npm install` there. Use Dawn v9.0.0 or earlier: later Dawn replaced the flat colour settings this repo's sections and
 the preview builder read (`colors_text`, `colors_accent_1`, ...) with colour-scheme groups, and on such a checkout the
-builder warns and falls back to a plain palette (the sections themselves expect the older colour-scheme classes). It
+builder warns and falls back to a plain palette (the section schemas also reference `sections.all.colors.*.label` locale keys that later Dawn versions do not have). It
 stops without changing anything if the two Dawn files are missing. It reads the dev store's public Storefront token from
 `SHOPIFY_STOREFRONT_TOKEN` (or a file named by `SHOPIFY_STOREFRONT_TOKEN_FILE`) and falls back to stub products
 without one; Node 20 or newer is needed for the tests and the preview (Playwright 1.64), Node 20.19 or newer for `npm run css` (Sass), Node 22.19 or newer for `perf/audit.mjs` (Lighthouse), Python 3 only for the seed script and `perf/read_report.py`.
@@ -186,7 +187,7 @@ Two more bugs worth knowing, both of which looked fine until they did not:
 - **The JSON-LD serialised raw values** while the visible HTML went through a type
   switch, so exactly the types the switch existed to protect against reached
   structured data as Shopify objects like `{"value":12.0,"unit":"MILLIMETERS"}`.
-  Both paths now share the value rendering in `snippets/spec-value.liquid` (the spec names are formatted separately in the two places and can differ in capitalisation).
+  Both paths now share the value rendering in `snippets/spec-value.liquid` (the spec names are formatted separately in the two places: the structured data keeps the group prefix and ignores the label overrides, so it can read "Physical  weight" where the visible table reads "Weight" under a Physical heading).
 
 ### Layout came from reading five real PDPs, not from taste
 

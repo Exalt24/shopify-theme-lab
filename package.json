@@ -7,6 +7,7 @@
     "test:mutants": "node tests/countdown_mutants.cjs",
     "test:liquid": "node tests/liquid.test.cjs",
     "test:liquid-mutants": "node tests/liquid_mutants.cjs",
+    "test:spec": "node tests/spec_table.test.cjs",
     "preview": "node tests/render/build_preview.cjs && node tests/render/shoot.cjs",
     "css": "sass styles/spec-table.scss assets/spec-table.css --style=compressed --no-source-map",
     "css:watch": "sass --watch styles/spec-table.scss assets/spec-table.css --no-source-map",

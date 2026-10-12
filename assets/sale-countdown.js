@@ -4,7 +4,7 @@
   disconnectedCallback on the old one. That removes the need for shopify:section:load handlers and means
   an edited section can never leave a second timer running behind it.
 
-  The end is ONE absolute instant. Either an ISO UTC time from a collection metafield (data-ends-at-utc),
+  The end is ONE absolute instant. Either an ISO 8601 time with its offset from a collection metafield (data-ends-at-utc, an absolute instant),
   or a wall-clock time typed in the section settings plus the zone offset the merchant picked
   (data-ends-at + data-offset). The device clock only ticks the display; it never decides the zone.
 */

@@ -85,6 +85,7 @@
       {%- endcomment -%}
       {%- liquid
         assign group_names = ''
+        assign seen_groups = '~|~'
         for pair in ns
           assign parts = pair[0] | split: '__'
           if parts.size > 1
@@ -92,7 +93,12 @@
           else
             assign gname = section.settings.default_group | default: 'General'
           endif
-          unless group_names contains gname
+          # `contains` on a string is a SUBSTRING test, so a group named `dim` was treated as already listed once
+          # `dimension` had been, and every row under it vanished. Each name is stored between delimiters so only a
+          # whole name matches.
+          assign seen_marker = '~|~' | append: gname | append: '~|~'
+          unless seen_groups contains seen_marker
+            assign seen_groups = seen_groups | append: gname | append: '~|~'
             if group_names == ''
               assign group_names = gname
             else

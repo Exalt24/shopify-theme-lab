@@ -31,7 +31,7 @@ There are no hex literals in the section CSS or Liquid. To check: `grep -E "#[0-
   date-time metafield (read with the shop's offset, so it is an absolute instant), or from the typed time plus the zone the merchant picked. The visitor's clock only drives
   the display. The sale's own zone is shown whenever it is known (from the metafield or the zone picked), plus the visitor's local time when it differs.
 - **It degrades.** With JavaScript off, or with an unreadable date, the static end text from Liquid stays and nothing breaks.
-- **`<sale-countdown>` is a custom element**, so the theme editor's re-render creates and removes timers correctly
+- **`<sale-countdown>` is a custom element**, so a re-render that creates and removes timers is handled (tested by cloning and removing the node; the editor itself was not used to exercise it)
   without `shopify:section:load` handlers. `tests/countdown.test.cjs` pins this.
 - **Bundle prices are real.** The bundle is its own product with its own price. The saving shown is
   (sum of the component prices) minus (the bundle price), and it only appears when it is positive.
