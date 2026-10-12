@@ -9,6 +9,55 @@ Theme validated with Shopify's own `theme check` and pushed with the Shopify CLI
 
 ---
 
+## New: a Claude-generated page, converted into native Shopify sections (October 2026)
+
+`design-source/winter-sale.html` is a landing page generated with Claude: one HTML file, hex colours, English
+baked in, a script that runs on `DOMContentLoaded`. It cannot be pasted into a theme. This repo holds its conversion
+into editable Online Store 2.0 pieces, and a list of what had to change and why (`docs/CONVERSION.md`).
+
+| Piece | File |
+|---|---|
+| Sale hero with a countdown, editable in the theme editor | `sections/sale-event-hero.liquid`, `assets/section-sale-event-hero.css`, `assets/sale-countdown.js` |
+| "What is in the bundle" block for a real bundle product, saving worked out from the real prices | `sections/bundle-contents.liquid`, `assets/section-bundle-contents.css` |
+| A sale landing page and a sale collection template | `templates/page.sale-landing.json`, `templates/collection.sale-event.json` |
+| Design intent, colour and token mapping, rules to keep | `DESIGN.md` |
+| Dev-store data: bundle product, smart collection, page, metafields, a discount ending when the countdown does | `scripts/seed_sale_demo.py` |
+
+What the sections do that the generated page did not:
+
+- **Colours come from the theme's colour schemes**, so changing a theme colour re-themes them. No hex literals.
+- **The countdown ends at one absolute instant.** A sale advertised for a US, UK and Australian audience cannot use
+  the visitor's own clock to decide when it ends. The end comes from a collection date-time metafield (best, because
+  the collection page and the landing page then agree) or from a typed time plus a chosen zone. The sale's zone is
+  always shown, plus the visitor's local time when it differs. With JavaScript off or an unreadable date the section
+  still reads correctly.
+- **`<sale-countdown>` is a custom element**, so the theme editor's re-render creates and removes timers correctly.
+  Impossible dates (31 February, 24:00) are refused identically in every browser; `Date.parse` alone rolls them forward in some.
+- **The countdown only counts down.** The seed also creates an automatic discount that ends at the same instant, so
+  what the page promises and what checkout charges agree.
+- **The bundle is its own product with its own price.** The saving is the sum of the parts minus the bundle price,
+  shown only when positive. The button is disabled while any listed part is sold out. This is a display guard: a bundle
+  product is not stock-linked to its parts the way Shopify's own Bundles app does it, and a discount that varies by
+  cart needs a Shopify Function or a bundle app. Nothing here claims experience with third-party bundle or page-builder apps.
+
+How it was checked (figures from runs on 2026-10-12):
+
+| Check | Result |
+|---|---|
+| `shopify theme check --output json`, filtered to the files added here | 0 offenses. The first draft of the bundle section failed it (a filter inside a `t:` argument list is not allowed). |
+| `node tests/countdown.test.cjs`: Chromium with a controlled clock | 20 of 20. It caught a real bug of mine in the local-time line while it was being written. |
+| `node tests/countdown_mutants.cjs`: planted defects | 13 of 13 caught (timer leaks, ignored zone offset, wrong day length, no end state, HTML injection, accepted impossible dates, listener leaks, and others) |
+| Independent review of the files by fresh agents that were told nothing of the author's findings | found and led to fixes for: a custom "sale ended" message rendered as a missing-translation string, impossible dates accepted, bundle on sale while a part was sold out, developer copy shipped as shopper copy, a wrong ARIA role |
+
+Not done, stated plainly: the sections were not run through Shopify's theme editor itself (add, edit, reorder, delete
+by hand), the quantities of parts in a bundle are always one, and a bundle with several variants prices only its first.
+
+This repository tracks only the files I wrote. It is an overlay on Shopify's stock Dawn theme (the stock files are
+git-ignored on purpose, see `.gitignore`), so to try it, copy these files into a Dawn-based theme and run
+`SHOPIFY_ADMIN_TOKEN=... python scripts/seed_sale_demo.py` against a development store.
+
+---
+
 ## What is in here
 
 ### 1. `snippets/seo-breadcrumb-jsonld.liquid`

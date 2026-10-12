@@ -7,13 +7,21 @@
 # the two files that are. Only my additions and the perf work are tracked.
 assets/*
 !assets/spec-table.css
+!assets/section-sale-event-hero.css
+!assets/section-bundle-contents.css
+!assets/sale-countdown.js
 config/
-locales/
+locales/*
+!locales/en.default.json
 templates/*
 !templates/product.json
+!templates/page.sale-landing.json
+!templates/collection.sale-event.json
 sections/*
 !sections/product-spec-table.liquid
 !sections/main-product.liquid
+!sections/sale-event-hero.liquid
+!sections/bundle-contents.liquid
 snippets/*
 !snippets/seo-breadcrumb-jsonld.liquid
 !snippets/spec-value.liquid

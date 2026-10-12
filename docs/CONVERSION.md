@@ -1,0 +1,25 @@
+# From a Claude-generated page to native sections: what changed and why
+
+Input: `design-source/winter-sale.html` (one HTML file). Output: `sections/sale-event-hero.liquid`,
+`sections/bundle-contents.liquid`, their assets, two JSON templates and locale strings.
+
+| # | Problem in the generated page | What the conversion does | Where |
+|---|---|---|---|
+| 1 | A full HTML document: `doctype`, `html`, `head`, `body`. Pasted into a theme it breaks the layout. | Fragments only. The theme's `layout/theme.liquid` owns the document. | whole of `sections/` |
+| 2 | No `{% schema %}`, so nothing is editable and it cannot be added in the theme editor. | A schema with typed settings, a heading-level choice, and a preset so the section appears under "Add section" and renders designed with no content entered. | `{% schema %}` at the end of each section |
+| 3 | Hex colours everywhere. | Colour scheme variables from the theme. Zero hex literals. | `assets/section-*.css` |
+| 4 | Global rules (`* { margin: 0 }`, `body { ... }`) that restyle the whole store. | Every selector sits under `.sale-hero` or `.bundle-contents`. | `assets/section-*.css` |
+| 5 | English text baked into the markup. | Merchant text is a setting; fixed words go through `t`. | `locales/en.default.json` |
+| 6 | Content baked into the markup (product names, prices). | The bundle reads real products from a metafield list and real prices from the variants, formatted with `money` so Markets currency applies. | `sections/bundle-contents.liquid` |
+| 7 | `DOMContentLoaded` script. In the theme editor the section is re-rendered into the live page and page-load JavaScript does not run again, so a timer silently stops or doubles. | A custom element: `connectedCallback` and `disconnectedCallback` fire on every insert and removal. | `assets/sale-countdown.js` |
+| 8 | A countdown to `new Date('2026-11-27T23:59:59')` is the visitor's own time zone, so the same sale ends at different moments for a US, UK and Australian customer. | One absolute instant. A zone picker, a UTC metafield override, the sale's zone always shown, and the visitor's local time when it differs. | `assets/sale-countdown.js` |
+| 9 | No fallback. | With JavaScript off or an unreadable date the static text from Liquid stays and the section still reads correctly. | `sale-event-hero.liquid`, `sale-countdown.js` |
+| 10 | Placeholder boxes instead of images. | `image_url` plus `image_tag` with width and height, srcset, `loading=eager` and `fetchpriority=high` only when the section is first on the page and lazy otherwise. | `sale-event-hero.liquid`, `bundle-contents.liquid` |
+
+## How it is checked
+
+- `shopify theme check --output json`, filtered to the files added here: zero offenses.
+  The first draft of `bundle-contents` failed it (a filter inside a `t:` argument list is not allowed); the fix is in the history.
+- `node tests/countdown.test.cjs`: 20 checks in Chromium with a controlled clock.
+  `node tests/countdown_mutants.cjs`: 13 planted defects, all caught.
+- Figures for these runs are in the README.

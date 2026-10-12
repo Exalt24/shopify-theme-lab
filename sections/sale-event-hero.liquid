@@ -1,0 +1,306 @@
+{{ 'section-sale-event-hero.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'sale-countdown.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign heading_tag = section.settings.heading_tag
+  assign ends_text = section.settings.ends_at | strip
+  assign ends_utc = ''
+  assign static_label = ''
+
+  comment
+    The end time comes from, in order: the collection this page is for, the collection picked in
+    the settings, or the time typed in the settings. A collection's date-time metafield is the one
+    place to change a sale's end, because the collection page and the landing page then agree.
+  endcomment
+  assign source_collection = collection
+  if source_collection == blank
+    assign source_collection = section.settings.sale_collection
+  endif
+  assign collection_end = source_collection.metafields.custom.sale_ends_at.value
+
+  if collection_end != blank
+    comment
+      %:z prints the offset the time is rendered in, so the instant is right whichever zone Liquid uses.
+    endcomment
+    assign ends_utc = collection_end | date: '%Y-%m-%dT%H:%M:%S%:z'
+    assign static_label = collection_end | date: '%d %b %Y, %H:%M (UTC%:z)'
+  elsif ends_text != blank
+    assign static_label = ends_text | append: ' (UTC' | append: section.settings.utc_offset | append: ')'
+  endif
+
+  assign has_end = false
+  if static_label != blank
+    assign has_end = true
+  endif
+  assign link = section.settings.button_link
+  assign loading = 'lazy'
+  assign fetchpriority = 'auto'
+  if section.index == 1
+    assign loading = 'eager'
+    assign fetchpriority = 'high'
+  endif
+  assign overlay = section.settings.image_overlay_opacity | divided_by: 100.0
+-%}
+
+{%- style -%}
+  #SaleHero-{{ section.id }} {
+    --sale-hero-pad-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    --sale-hero-pad-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+    --sale-hero-overlay: {{ overlay }};
+  }
+
+  @media screen and (min-width: 750px) {
+    #SaleHero-{{ section.id }} {
+      --sale-hero-pad-top: {{ section.settings.padding_top }}px;
+      --sale-hero-pad-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div id="SaleHero-{{ section.id }}" class="sale-hero color-{{ section.settings.color_scheme }} gradient">
+  {%- if section.settings.image != blank -%}
+    <div class="sale-hero__media" aria-hidden="true">
+      {{
+        section.settings.image
+        | image_url: width: 1920
+        | image_tag:
+          loading: loading,
+          fetchpriority: fetchpriority,
+          widths: '375, 750, 1100, 1500, 1920',
+          sizes: '100vw',
+          class: 'sale-hero__image',
+          alt: ''
+      }}
+    </div>
+  {%- endif -%}
+
+  <div class="sale-hero__inner">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="sale-hero__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+    {%- endif -%}
+
+    {%- if section.settings.heading != blank -%}
+      <{{ heading_tag }} class="sale-hero__heading inline-richtext">{{ section.settings.heading }}</{{ heading_tag }}>
+    {%- endif -%}
+
+    {%- if section.settings.subheading != blank -%}
+      <div class="sale-hero__text rte">{{ section.settings.subheading }}</div>
+    {%- endif -%}
+
+    {%- if has_end -%}
+      <noscript>
+        <style>
+          #SaleHero-{{ section.id }} .sale-hero__units {
+            display: none;
+          }
+        </style>
+      </noscript>
+      <sale-countdown
+        class="sale-hero__countdown"
+        data-state="pending"
+        data-ends-at="{{ ends_text | escape }}"
+        data-offset="{{ section.settings.utc_offset }}"
+        data-ends-at-utc="{{ ends_utc }}"
+        data-ends-template="{{ 'sections.sale_event_hero.ends_label' | t: date: '__DATE__' | escape }}"
+        data-local-template="{{ 'sections.sale_event_hero.ends_local' | t: date: '__DATE__' | escape }}"
+      >
+        <p class="sale-hero__ends" data-ends-label>
+          {{- 'sections.sale_event_hero.ends_label' | t: date: static_label -}}
+        </p>
+        <div class="sale-hero__timer" role="timer" aria-live="off">
+          <ul class="sale-hero__units">
+            <li class="sale-hero__unit">
+              <span class="sale-hero__number" data-unit="d">00</span>
+              <span class="sale-hero__caption">{{ 'sections.sale_event_hero.days' | t }}</span>
+            </li>
+            <li class="sale-hero__unit">
+              <span class="sale-hero__number" data-unit="h">00</span>
+              <span class="sale-hero__caption">{{ 'sections.sale_event_hero.hours' | t }}</span>
+            </li>
+            <li class="sale-hero__unit">
+              <span class="sale-hero__number" data-unit="m">00</span>
+              <span class="sale-hero__caption">{{ 'sections.sale_event_hero.minutes' | t }}</span>
+            </li>
+            <li class="sale-hero__unit">
+              <span class="sale-hero__number" data-unit="s">00</span>
+              <span class="sale-hero__caption">{{ 'sections.sale_event_hero.seconds' | t }}</span>
+            </li>
+          </ul>
+        </div>
+        <p class="sale-hero__local" data-ends-local hidden></p>
+        <p class="sale-hero__ended" data-ended hidden>
+          {%- if section.settings.ended_message != blank -%}
+            {{- section.settings.ended_message | escape -}}
+          {%- else -%}
+            {{- 'sections.sale_event_hero.ended' | t -}}
+          {%- endif -%}
+        </p>
+      </sale-countdown>
+    {%- endif -%}
+
+    {%- if section.settings.button_label != blank and link != blank -%}
+      <a href="{{ link }}" class="button sale-hero__button">
+        {{- section.settings.button_label | escape -}}
+      </a>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Sale event hero",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "options": [
+        { "value": "accent-1", "label": "t:sections.all.colors.accent_1.label" },
+        { "value": "accent-2", "label": "t:sections.all.colors.accent_2.label" },
+        { "value": "background-1", "label": "t:sections.all.colors.background_1.label" },
+        { "value": "background-2", "label": "t:sections.all.colors.background_2.label" },
+        { "value": "inverse", "label": "t:sections.all.colors.inverse.label" }
+      ],
+      "default": "inverse",
+      "label": "t:sections.all.colors.label",
+      "info": "Text contrast depends on your theme colours. Check the heading is easy to read after changing this."
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "default": "Winter sale",
+      "label": "Small line above the heading"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "default": "Ride more. Pay less.",
+      "label": "Heading"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "options": [
+        { "value": "h1", "label": "H1, use when this is the first section on the page" },
+        { "value": "h2", "label": "H2, use everywhere else" }
+      ],
+      "default": "h2",
+      "label": "Heading level",
+      "info": "One H1 per page keeps the heading order correct for screen readers."
+    },
+    {
+      "type": "richtext",
+      "id": "subheading",
+      "default": "<p>Say what the sale is and when it ends, in one sentence.</p>",
+      "label": "Text"
+    },
+    {
+      "type": "header",
+      "content": "Countdown"
+    },
+    {
+      "type": "collection",
+      "id": "sale_collection",
+      "label": "Sale collection",
+      "info": "Best way to set the end: give this collection a \"sale_ends_at\" date-time metafield (Settings, Custom data, Collections). On a collection page the page's own collection is used automatically. Create the metafield with scripts/seed_sale_demo.py or in the admin."
+    },
+    {
+      "type": "text",
+      "id": "ends_at",
+      "label": "Or type the end time (year-month-day hour:minute)",
+      "info": "24-hour clock, for example 2026-11-27 23:59. Only used when no collection supplies an end. Leave both empty for no countdown. The countdown only counts down: end the offer itself with a discount that has the same end time."
+    },
+    {
+      "type": "select",
+      "id": "utc_offset",
+      "options": [
+        { "value": "-08:00", "label": "Pacific, standard time (UTC-08:00)" },
+        { "value": "-05:00", "label": "Eastern, standard time (UTC-05:00)" },
+        { "value": "+00:00", "label": "United Kingdom, winter time (UTC+00:00)" },
+        { "value": "+08:00", "label": "Philippines and Singapore (UTC+08:00)" },
+        { "value": "+11:00", "label": "Sydney and Melbourne, summer time (UTC+11:00)" }
+      ],
+      "default": "-05:00",
+      "label": "Time zone of the typed end time",
+      "info": "Pick the zone the sale is advertised in. Daylight saving is yours to account for."
+    },
+    {
+      "type": "text",
+      "id": "ended_message",
+      "label": "Message when the sale has ended",
+      "info": "Leave empty to use the default wording."
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "default": "Shop the sale",
+      "label": "Button label",
+      "info": "The button shows only when it has both a label and a link."
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "header",
+      "content": "Background image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image",
+      "info": "Optional. Without one, the colour scheme is the background."
+    },
+    {
+      "type": "range",
+      "id": "image_overlay_opacity",
+      "min": 0,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "label": "Overlay opacity",
+      "info": "Raise this until the text is easy to read over the image.",
+      "default": 60
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 64
+    }
+  ],
+  "presets": [
+    {
+      "name": "Sale event hero"
+    }
+  ]
+}
+{% endschema %}
