@@ -19,7 +19,7 @@ Input: `design-source/winter-sale.html` (one HTML file). Output: `sections/sale-
 ## How it is checked
 
 - `shopify theme check --output json`, filtered to the files added here: zero offenses.
-  The first draft of `bundle-contents` failed it (a filter inside a `t:` argument list is not allowed); the fix is in the history.
+ 
 - `node tests/countdown.test.cjs`: 22 checks in Chromium with a controlled clock.
   `node tests/countdown_mutants.cjs`: 15 planted defects, all caught.
 - Figures for these runs are in the README.

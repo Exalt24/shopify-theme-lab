@@ -49,16 +49,15 @@ How it was checked (figures from runs on 2026-10-12):
 
 | Check | Result |
 |---|---|
-| `shopify theme check --output json`, filtered to the files added here | 0 offenses. The first draft of the bundle section failed it (a filter inside a `t:` argument list is not allowed). |
+| `shopify theme check --output json`, filtered to the files added here | 0 offenses. |
 | `node tests/countdown.test.cjs`: Chromium with a controlled clock | 22 of 22. It caught a real bug of mine in the local-time line while it was being written. |
 | `node tests/countdown_mutants.cjs`: planted defects | 15 of 15 caught (timer leaks, ignored zone offset, wrong day length, no end state, HTML injection, accepted impossible dates, listener leaks, and others) |
-| Independent review of the files by fresh agents that were told nothing of the author's findings | found and led to fixes for: a custom "sale ended" message rendered as a missing-translation string, impossible dates accepted, bundle on sale while a part was sold out, developer copy shipped as shopper copy, a wrong ARIA role |
 
 Not done, stated plainly: the sections were not run through Shopify's theme editor itself (add, edit, reorder, delete
 by hand), the quantities of parts in a bundle are always one, and a bundle with several variants prices only its first.
 The typed-time zone picker offers five fixed offsets (no daylight-saving ones), so a sale between roughly March and
 October should use the collection metafield instead. The colour-scheme options `accent-2` and `background-2` fail
-contrast on the default preset (the schema warns about it). Only English locale keys exist for the new sections.
+contrast on the default preset (the hero section warns about it in its settings). Only English locale keys exist for the new sections.
 
 This repository is an overlay on Shopify's stock Dawn theme (MIT, see `LICENSE`). Most stock files are git-ignored on
 purpose (see `.gitignore`), but a few edited or stock files are tracked because earlier work changed them:
@@ -69,7 +68,7 @@ keys I added). To try the sale sections in your own Dawn-based theme, copy only 
 `sections.bundle_contents` keys into your own locale file rather than copying mine over it.
 `scripts/seed_sale_demo.py` seeds MY development store only (it refuses any other shop and uses Shopify's sample
 product handles), so on another store create the two metafield definitions (`custom.bundle_items`,
-`custom.sale_ends_at`) and the discount by hand. The tests need Playwright: `npm install`, then `npm test`
+`custom.sale_ends_at`) and the discount by hand. The tests need Playwright: `npm install`, `npx playwright install chromium`, then `npm test`
 and `npm run test:mutants`.
 
 ---
@@ -263,9 +262,9 @@ shopify theme push --unpublished        # pushed to the dev store
 ```
 
 `theme check` on the two additions reported 48 remaining offenses across 44 files, all pre-existing in the stock
-theme. Re-run on 2026-10-12 with the sale sections added, the whole theme reports 495 offenses: 450 are
-`MatchingTranslations` (the 15 keys of the sale sections exist only in `en.default.json`, not in the 30 other
-locale files) and the rest are the stock ones. The new files themselves report 0.
+theme. Re-run on 2026-10-12 with the sale sections added, the whole theme reports 495 offenses: 480 are
+`MatchingTranslations` (450 are the 15 keys of the sale sections, present only in `en.default.json` and not in the 30 other
+locale files, 30 are one stock key) and the rest are the stock ones. The new files themselves report 0.
 
 The rendered output IS verified, in a real browser at 1280px and 390px: the spec
 table renders as a `dl` with real metafield values, the breadcrumb emits a valid

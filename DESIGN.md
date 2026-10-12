@@ -17,13 +17,13 @@ scheme or the theme fonts re-themes the sections without anyone touching Liquid 
 | In the source design | In the theme | Why |
 |---|---|---|
 | Dark navy hero background | the `inverse` colour scheme: `--color-background`, `--gradient-background` | the merchant picks it in the editor |
-| White text, soft blue-grey secondary text | `--color-foreground`, and `rgba(var(--color-foreground), 0.75)` for secondary text | contrast follows whatever scheme is chosen |
+| White text, soft blue-grey secondary text | `--color-foreground`, and `--color-foreground` at 0.75 to 0.85 opacity for secondary text | contrast follows whatever scheme is chosen |
 | Amber pill button | the theme's own `.button` | one button style across the store; the hue now comes from the theme, which is a deliberate change from the design |
 | Timer tiles, borders, card shadow | `rgba(var(--color-foreground), 0.08 / 0.12 / 0.2)` | tints of the text colour stay legible on any scheme |
 | Fixed font stack | `--font-heading-family`, `--font-heading-weight` | the theme's own fonts |
 | `1rem = 16px` sizes | rem values on the theme's 10px root (`1.3rem` is 13px) | the theme sets `html { font-size: 62.5% }` |
 
-There are no hex literals in the section CSS or Liquid. To check: `grep -E "#[0-9a-fA-F]{3,8}" sections/sale-event-hero.liquid sections/bundle-contents.liquid assets/section-*.css`.
+There are no hex literals in the section CSS or Liquid. To check: `grep -E "#[0-9a-fA-F]{3,8}" sections/sale-event-hero.liquid sections/bundle-contents.liquid assets/section-sale-event-hero.css assets/section-bundle-contents.css`.
 
 ## Behaviour that must survive an edit
 

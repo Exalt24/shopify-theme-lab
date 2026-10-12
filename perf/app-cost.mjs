@@ -24,7 +24,7 @@ import { writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-const { chromium } = require('playwright');
+const { chromium } = require(process.env.PLAYWRIGHT_PATH || 'playwright');
 
 const [, , URL_ARG, PASSWORD] = process.argv;
 if (!URL_ARG) {
