@@ -67,7 +67,8 @@ function metrics(lhr) {
 
 function median(values) {
   const s = [...values].sort((a, b) => a - b);
-  return s[Math.floor(s.length / 2)];
+  const mid = Math.floor(s.length / 2);
+  return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
 }
 
 // Log in INSIDE the browser Lighthouse will drive, and tell Lighthouse not to wipe storage. Forwarding the cookie as an

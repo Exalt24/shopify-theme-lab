@@ -58,7 +58,7 @@ How it was checked (figures from runs on 2026-10-12):
 | `node tests/countdown_mutants.cjs`: planted defects | 15 of 15 caught (timer leaks, ignored zone offset, wrong day length, no end state, HTML injection, accepted impossible dates, listener leaks, and others) |
 | `node tests/liquid.test.cjs`: the real section Liquid executed through LiquidJS with Shopify's objects stubbed | 20 of 20: saving maths, whole-number percent, sold-out part and sold-out bundle, no saving row when the bundle is not cheaper, the metafield instant reaching the script as the same moment in six render zones, collection priority, escaping, heading level, image priority, every string present in the locale file. |
 | `node tests/liquid_mutants.cjs`: planted defects in the Liquid | 16 of 16 caught |
-| `node tests/spec_table.test.cjs` (`npm run test:spec`): the older spec table's grouping, row and escaping behaviour through LiquidJS | 6 of 6. Its first case failed on the earlier code and found a real bug: a group whose name was a prefix of an earlier group's name (`dim` after `dimension`) was treated as already listed and every row under it vanished, because `contains` on a string is a substring test. Fixed 2026-10-12; the fixed section was uploaded to the dev theme (Shopify accepted its syntax) and four product pages rendered without errors, but the dev store has no spec metafields, so the table itself was only exercised through LiquidJS. |
+| `node tests/spec_table.test.cjs` (`npm run test:spec`): the older spec table's grouping, row and escaping behaviour through LiquidJS | 7 of 7. Its first case failed on the earlier code and found a real bug: a group whose name was a prefix of an earlier group's name (`dim` after `dimension`) was treated as already listed and every row under it vanished, because `contains` on a string is a substring test. Fixed 2026-10-12; the fixed section was uploaded to the dev theme (Shopify accepted its syntax) and four product pages rendered without errors, but the dev store has no spec metafields, so the table itself was only exercised through LiquidJS. |
 
 **What the Liquid tests are and are not.** `tests/render/shopify_liquid.cjs` is my own stand-in for the Shopify
 objects, filters and tags the two sections use (`money`, `t`, `image_url`, `{% form %}`, `{% style %}`, a date filter
@@ -116,7 +116,7 @@ contrast on this store's own colours (`accent-2` #45c0b6 is 2.2:1 against white;
 
 This repository is an overlay on Shopify's stock Dawn theme (MIT with Shopify's added condition that it is used to develop themes that work with Shopify; the full text is in `LICENSE`, next to the MIT licence of my additions). Most stock files are git-ignored on
 purpose (see `.gitignore`), but a few edited or stock files are tracked because earlier work changed them:
-`sections/main-product.liquid` (the dev theme's edited copy of Dawn's product section), `templates/product.json` and the full `locales/en.default.json` (the dev theme's keys plus the
+`sections/main-product.liquid` (the dev theme's edited copy of Dawn's product section), `templates/product.json`, the full `locales/en.default.json` and `preview/assets/base.css` (Dawn v9.0.0's, unchanged) (the dev theme's keys plus the
 15 I added). To try the sale sections in your own Dawn-based theme, copy only `sections/sale-event-hero.liquid`,
 `sections/bundle-contents.liquid`, `assets/sale-countdown.js`, `assets/section-sale-event-hero.css`,
 `assets/section-bundle-contents.css` and the two `templates/*sale*.json`, and merge the `sections.sale_event_hero` and

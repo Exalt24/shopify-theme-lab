@@ -71,6 +71,12 @@ check('text values are escaped in the HTML, and a url value is escaped once', ()
   assert.ok(h.includes('a=1&amp;b=2') && !h.includes('&amp;amp;'), 'url escaped exactly once');
 });
 
+check('a single prefixed group still gets its heading, and the padding settings are applied', () => {
+  const h = render({ physical__weight: text('W'), physical__height: text('H') }, { padding_top: 80, padding_bottom: 8 });
+  assert.deepStrictEqual(headings(h), ['Physical']);
+  assert.ok(h.includes('padding-top: 80px') && h.includes('padding-bottom: 8px'), 'padding applied');
+});
+
 check('with no metafield namespace the section renders nothing', () => {
   const h = renderSection(engine, 'product-spec-table.liquid', {
     settings: { namespace: 'specs', heading: '', default_group: 'General' },

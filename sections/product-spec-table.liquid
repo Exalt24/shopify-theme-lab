@@ -67,7 +67,7 @@
   {%- endcomment -%}
   {{ 'spec-table.css' | asset_url | stylesheet_tag }}
 
-  <div class="spec-table">
+  <div class="spec-table" style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;">
     <div class="spec-table__inner">
       {%- if section.settings.heading != blank -%}
         <h2 class="spec-table__heading">{{ section.settings.heading | escape }}</h2>
@@ -86,9 +86,11 @@
       {%- liquid
         assign group_names = ''
         assign seen_groups = '~|~'
+        assign has_prefixed_group = false
         for pair in ns
           assign parts = pair[0] | split: '__'
           if parts.size > 1 and parts[0] != ''
+            assign has_prefixed_group = true
             assign gname = parts[0] | replace: '_', ' ' | capitalize
           else
             assign gname = section.settings.default_group | default: 'General'
@@ -111,7 +113,7 @@
 
       {%- for group in groups -%}
       <div class="spec-table__group">
-        {%- if groups.size > 1 -%}
+        {%- if groups.size > 1 or has_prefixed_group -%}
           <h3 class="spec-table__group-heading">{{ group | escape }}</h3>
         {%- endif -%}
       <dl class="spec-table__list">
