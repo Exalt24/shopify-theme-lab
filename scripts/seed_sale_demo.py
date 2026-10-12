@@ -23,13 +23,13 @@ import urllib.request
 
 API = "2025-10"
 COMPONENT_HANDLES = ["the-complete-snowboard", "selling-plans-ski-wax"]
+# The bundle's two components are deliberately NOT in the sale. The bundle section compares the bundle price
+# with the parts' list prices; if the parts were also discounted, "bought separately" would be a price nobody pays.
 SALE_TAGGED = [
     "the-compare-at-price-snowboard",
     "the-collection-snowboard-hydrogen",
     "the-multi-managed-snowboard",
-    "the-complete-snowboard",
     "the-collection-snowboard-liquid",
-    "selling-plans-ski-wax",
 ]
 # 2026-11-27 23:59 US Eastern standard time, as one absolute instant in UTC.
 SALE_ENDS_UTC = "2026-11-28T04:59:00Z"
@@ -125,6 +125,11 @@ def main():
         must(gql(shop, token, "mutation($id:ID!,$t:[String!]!){ tagsAdd(id:$id,tags:$t){ userErrors{ message } } }",
                  {"id": p["id"], "t": ["winter-sale"]}), "tagsAdd")
     print("tagged", len(SALE_TAGGED), "products winter-sale")
+    for h in COMPONENT_HANDLES:
+        p = product_by_handle(shop, token, h)
+        must(gql(shop, token, "mutation($id:ID!,$t:[String!]!){ tagsRemove(id:$id,tags:$t){ userErrors{ message } } }",
+                 {"id": p["id"], "t": ["winter-sale"]}), "tagsRemove")
+    print("bundle components kept out of the sale")
 
     if not existing_bundle:
         made = must(gql(shop, token, """

@@ -37,20 +37,27 @@ What the sections do that the generated page did not:
   what the page promises and what checkout charges agree.
 - **The bundle is its own product with its own price.** The saving is the sum of the parts minus the bundle price,
   shown only when positive. The button is disabled while any listed part is sold out. This is a display guard: a bundle
-  product is not stock-linked to its parts the way Shopify's own Bundles app does it, and a discount that varies by
-  cart needs a Shopify Function or a bundle app. Nothing here claims experience with third-party bundle or page-builder apps.
+  product is not stock-linked to its parts the way Shopify's own Bundles app does it (an order contains only the bundle
+  line, so the parts' stock does not drop, and a direct cart add or a stale cached page can still sell it), and a
+  discount that varies by cart needs a Shopify Function or a bundle app. "Bought separately" is the parts' list
+  price, so the parts must stay out of any discounted collection: a review found that tagging the parts into the
+  10% sale made the page say "You save" while the parts were cheaper than the bundle, and the seed now keeps them out.
+  Nothing here claims experience with third-party bundle or page-builder apps.
 
 How it was checked (figures from runs on 2026-10-12):
 
 | Check | Result |
 |---|---|
 | `shopify theme check --output json`, filtered to the files added here | 0 offenses. The first draft of the bundle section failed it (a filter inside a `t:` argument list is not allowed). |
-| `node tests/countdown.test.cjs`: Chromium with a controlled clock | 20 of 20. It caught a real bug of mine in the local-time line while it was being written. |
-| `node tests/countdown_mutants.cjs`: planted defects | 13 of 13 caught (timer leaks, ignored zone offset, wrong day length, no end state, HTML injection, accepted impossible dates, listener leaks, and others) |
+| `node tests/countdown.test.cjs`: Chromium with a controlled clock | 22 of 22. It caught a real bug of mine in the local-time line while it was being written. |
+| `node tests/countdown_mutants.cjs`: planted defects | 15 of 15 caught (timer leaks, ignored zone offset, wrong day length, no end state, HTML injection, accepted impossible dates, listener leaks, and others) |
 | Independent review of the files by fresh agents that were told nothing of the author's findings | found and led to fixes for: a custom "sale ended" message rendered as a missing-translation string, impossible dates accepted, bundle on sale while a part was sold out, developer copy shipped as shopper copy, a wrong ARIA role |
 
 Not done, stated plainly: the sections were not run through Shopify's theme editor itself (add, edit, reorder, delete
 by hand), the quantities of parts in a bundle are always one, and a bundle with several variants prices only its first.
+The typed-time zone picker offers five fixed offsets (no daylight-saving ones), so a sale between roughly March and
+October should use the collection metafield instead. The colour-scheme options `accent-2` and `background-2` fail
+contrast on the default preset (the schema warns about it). Only English locale keys exist for the new sections.
 
 This repository tracks only the files I wrote. It is an overlay on Shopify's stock Dawn theme (the stock files are
 git-ignored on purpose, see `.gitignore`), so to try it, copy these files into a Dawn-based theme and run

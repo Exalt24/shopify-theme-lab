@@ -60,7 +60,7 @@
                 <div class="bundle-contents__media">
                   {%- if item.featured_media != blank -%}
                     {{
-                      item.featured_media
+                      item.featured_media.preview_image
                       | image_url: width: 800
                       | image_tag:
                         loading: 'lazy',
@@ -168,7 +168,7 @@
       "id": "show_savings",
       "default": true,
       "label": "Show the saving",
-      "info": "Worked out from the real prices. It only appears when the bundle costs less than the parts."
+      "info": "Worked out from the list prices of the parts. It only appears when the bundle costs less than the parts, and it does not know about an automatic discount, so keep the parts out of any discounted collection."
     },
     {
       "type": "checkbox",

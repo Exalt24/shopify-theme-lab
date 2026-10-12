@@ -5,13 +5,12 @@
   assign heading_tag = section.settings.heading_tag
   assign ends_text = section.settings.ends_at | strip
   assign ends_utc = ''
+  assign ends_zone = ''
   assign static_label = ''
 
-  comment
-    The end time comes from, in order: the collection this page is for, the collection picked in
-    the settings, or the time typed in the settings. A collection's date-time metafield is the one
-    place to change a sale's end, because the collection page and the landing page then agree.
-  endcomment
+  # The end time comes from, in order: the collection this page is for, the collection picked in
+  # the settings, or the time typed in the settings. A collection's date-time metafield is the one
+  # place to change a sale's end, because the collection page and the landing page then agree.
   assign source_collection = collection
   if source_collection == blank
     assign source_collection = section.settings.sale_collection
@@ -19,9 +18,8 @@
   assign collection_end = source_collection.metafields.custom.sale_ends_at.value
 
   if collection_end != blank
-    comment
-      %:z prints the offset the time is rendered in, so the instant is right whichever zone Liquid uses.
-    endcomment
+    # %:z prints the offset the time is rendered in, so the instant is right whichever zone Liquid uses.
+    assign ends_zone = collection_end | date: '%:z'
     assign ends_utc = collection_end | date: '%Y-%m-%dT%H:%M:%S%:z'
     assign static_label = collection_end | date: '%d %b %Y, %H:%M (UTC%:z)'
   elsif ends_text != blank
@@ -101,8 +99,9 @@
         data-ends-at="{{ ends_text | escape }}"
         data-offset="{{ section.settings.utc_offset }}"
         data-ends-at-utc="{{ ends_utc }}"
-        data-ends-template="{{ 'sections.sale_event_hero.ends_label' | t: date: '__DATE__' | escape }}"
-        data-local-template="{{ 'sections.sale_event_hero.ends_local' | t: date: '__DATE__' | escape }}"
+        data-utc-zone="{{ ends_zone }}"
+        data-ends-template="{{ 'sections.sale_event_hero.ends_label' | t: date: '__DATE__' }}"
+        data-local-template="{{ 'sections.sale_event_hero.ends_local' | t: date: '__DATE__' }}"
       >
         <p class="sale-hero__ends" data-ends-label>
           {{- 'sections.sale_event_hero.ends_label' | t: date: static_label -}}

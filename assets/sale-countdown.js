@@ -54,7 +54,13 @@ if (!customElements.get('sale-countdown')) {
       const utc = (this.dataset.endsAtUtc || '').trim();
       if (utc) {
         const instant = Date.parse(utc);
-        return Number.isNaN(instant) ? null : { instant, wall: null };
+        if (Number.isNaN(instant)) return null;
+        // Liquid also prints the offset the metafield was rendered in (data-utc-zone), so the sale's own
+        // clock and zone can be shown next to the visitor's, exactly as on the typed-time path.
+        const zone = /^([+-])(\d{2}):(\d{2})$/.exec((this.dataset.utcZone || '').trim());
+        if (!zone) return { instant, wall: null, zone: null };
+        const minutes = (zone[1] === '-' ? -1 : 1) * (Number(zone[2]) * 60 + Number(zone[3]));
+        return { instant, wall: instant + minutes * 60000, zone: `${zone[1]}${zone[2]}:${zone[3]}` };
       }
       const raw = (this.dataset.endsAt || '').trim();
       const offset = (this.dataset.offset || '').trim();
@@ -77,7 +83,7 @@ if (!customElements.get('sale-countdown')) {
       }
       const instant = Date.parse(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:00${offset}`);
       if (Number.isNaN(instant)) return null;
-      return { instant, wall };
+      return { instant, wall, zone: offset };
     }
 
     formatter(options) {
@@ -95,7 +101,7 @@ if (!customElements.get('sale-countdown')) {
       if (parsed.wall !== null) {
         const wall = this.formatter({ ...own, timeZone: 'UTC' }).format(parsed.wall);
         // A true minus sign (U+2212) cannot be broken across lines the way a hyphen can.
-        const zone = `UTC${this.dataset.offset.replace('-', '−')}`;
+        const zone = `UTC${(parsed.zone === 'Z' ? '+00:00' : parsed.zone).replace('-', '−')}`;
         this.setLabel(this.endLabel, this.dataset.endsTemplate, `${wall} (${zone})`);
         // Compare like with like (no zone name on either side), so a visitor already in the sale's zone
         // is not shown a second, identical line.

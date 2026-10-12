@@ -151,6 +151,23 @@ const eq = (got, want, what) => {
     await ctx.close();
   });
 
+  await check('metafield path shows the sale zone, and the visitor line when the visitor is elsewhere', async () => {
+    const attrs = { 'data-ends-at-utc': '2026-11-28T04:59:00Z', 'data-utc-zone': '-05:00' };
+    const { ctx, page } = await boot(browser, '2026-11-27T04:59:00Z', attrs, { tz: 'Australia/Sydney' });
+    const r = await read(page);
+    eq(r.label, 'Sale ends Fri, Nov 27, 11:59 PM (UTC−05:00)', 'sale clock and true minus');
+    eq(r.localHidden, false, 'visitor line shown to a Sydney visitor');
+    await ctx.close();
+  });
+
+  await check('metafield path with no zone attribute still works and shows the visitor time only', async () => {
+    const { ctx, page } = await boot(browser, '2026-11-27T04:59:00Z', { 'data-ends-at-utc': '2026-11-28T04:59:00Z' }, { tz: 'UTC' });
+    const r = await read(page);
+    eq(r.state, 'running', 'state');
+    eq(r.localHidden, true, 'no second line');
+    await ctx.close();
+  });
+
   await check('editor re-render: removing the node clears its timer, inserting a copy starts exactly one', async () => {
     const { ctx, page } = await boot(browser, '2026-11-27T04:59:00Z', NOV27_END);
     eq((await read(page)).active, 1, 'one timer after first load');

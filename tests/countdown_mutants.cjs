@@ -26,7 +26,9 @@ const mutants = [
   ['impossible dates not round-trip checked', 'back.getUTCFullYear() !== year ||\n        back.getUTCMonth() !== month - 1 ||\n        back.getUTCDate() !== day ||\n        back.getUTCHours() !== hour ||\n        back.getUTCMinutes() !== minute', 'false'],
   ['tab-return listener never added', "document.addEventListener('visibilitychange', this.onVisible);\n      }\n    }\n\n    disconnectedCallback", "}\n    }\n\n    disconnectedCallback"],
   ['tab-return listener leaks after removal', "window.clearInterval(this.timer);\n      this.timer = null;\n      document.removeEventListener('visibilitychange', this.onVisible);\n    }\n\n    parseEnd", "window.clearInterval(this.timer);\n      this.timer = null;\n    }\n\n    parseEnd"],
-  ['hyphen instead of a true minus in the zone label', "this.dataset.offset.replace('-', '−')", 'this.dataset.offset'],
+  ['metafield path ignores the zone attribute', "if (!zone) return { instant, wall: null, zone: null };", 'return { instant, wall: null, zone: null };'],
+  ['metafield zone sign flipped', "(zone[1] === '-' ? -1 : 1)", "(zone[1] === '-' ? 1 : -1)"],
+  ['hyphen instead of a true minus in the zone label', "(parsed.zone === 'Z' ? '+00:00' : parsed.zone).replace('-', '−')", "(parsed.zone === 'Z' ? '+00:00' : parsed.zone)"],
 ];
 
 let survived = 0;
