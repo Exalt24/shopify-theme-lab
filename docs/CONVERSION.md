@@ -19,7 +19,19 @@ Input: `design-source/winter-sale.html` (one HTML file). Output: `sections/sale-
 ## How it is checked
 
 - `shopify theme check --output json`, filtered to the files added here: zero offenses.
- 
 - `node tests/countdown.test.cjs`: 22 checks in Chromium with a controlled clock.
   `node tests/countdown_mutants.cjs`: 15 planted defects, all caught.
+- `node tests/liquid.test.cjs`: 18 checks that run the section Liquid itself through LiquidJS with Shopify's objects
+  stubbed. `node tests/liquid_mutants.cjs`: 16 planted defects, all caught.
 - Figures for these runs are in the README.
+
+## What the conversion does not reproduce
+
+- The amber pill button and the gradient hero: the section uses the theme's own button and colour scheme, so the hue
+  follows the theme settings. The static preview sets the theme's text colour to the design's navy to show that a
+  colour setting carries through; the button stays the theme's.
+- The three-card product grid with red "Sale" tags and the green "You save" figure on each card: the templates use
+  Dawn's own featured-collection and collection grid sections, which were not rendered or checked here, and an
+  automatic discount cannot show a sale price on a product card from Liquid.
+- Anything that needs the Shopify storefront: the preview is a static render, its buttons do nothing, and the
+  countdown ends at the fixed instant 2026-11-28T04:59:00Z, after which the page shows its ended state.

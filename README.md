@@ -11,7 +11,7 @@ Theme validated with Shopify's own `theme check` and pushed with the Shopify CLI
 
 ## New: a Claude-generated page, converted into native Shopify sections (October 2026)
 
-`design-source/winter-sale.html` is a landing page generated with Claude: one HTML file, hex colours, English
+`design-source/winter-sale.html` is a landing page written by Claude (October 2026) as the stand-in for a design handed over: one HTML file, hex colours, English
 baked in, a script that runs on `DOMContentLoaded`. It cannot be pasted into a theme. This repo holds its conversion
 into editable Online Store 2.0 pieces, and a list of what had to change and why (`docs/CONVERSION.md`).
 
@@ -69,6 +69,13 @@ own `base.css` and colour settings, and screenshots them at 390px and 1280px wit
 2026-10-12 the sale zone and a visitor's own time both show (a Manila browser reads "That is Sat, Nov 28, 12:59 PM
 GMT+8 where you are."), the saving reads "You save $44.95 (6.2%)" against the parts' list prices, and there is no
 horizontal overflow at either width.
+
+The preview needs the stock Dawn files this repo overlays (`assets/base.css`, `config/settings_data.json`), so run it
+from a Dawn checkout with this repo's files copied over it; it stops without changing anything if they are missing.
+Its buttons and product links are inert, its product images are hot-linked from the dev store's CDN, its countdown
+ends at the fixed instant 2026-11-28T04:59:00Z (after which it shows the ended state), and the theme's text colour is
+set to the source design's navy to show that a colour setting carries through. It is deployed to Cloudflare Pages
+as the project `sale-sections-preview`.
 
 ![Laptop width](preview/laptop-1280.png)
 ![Phone width](preview/phone-390.png)

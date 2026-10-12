@@ -9,7 +9,7 @@ const { spawnSync } = require('child_process');
 
 const SRC = path.join(__dirname, '..', 'assets', 'sale-countdown.js');
 const TEST = path.join(__dirname, 'countdown.test.cjs');
-const source = fs.readFileSync(SRC, 'utf8');
+const source = fs.readFileSync(SRC, 'utf8').replace(/\r\n/g, '\n');
 
 const mutants = [
   ['timer leaks when the node is removed', "disconnectedCallback() {\n      window.clearInterval(this.timer);", 'disconnectedCallback() {\n      '],

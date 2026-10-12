@@ -13,8 +13,8 @@ const SHOP = 'dac-dev-store.myshopify.com';
 
 function tokenFromSecrets() {
   if (process.env.SHOPIFY_STOREFRONT_TOKEN) return process.env.SHOPIFY_STOREFRONT_TOKEN;
-  const file = 'shopify_storefront_token.txt';
-  if (!fs.existsSync(file)) return null;
+  const file = process.env.SHOPIFY_STOREFRONT_TOKEN_FILE;
+  if (!file || !fs.existsSync(file)) return null;
   const m = /^STOREFRONT_TOKEN=(.+)$/m.exec(fs.readFileSync(file, 'utf8'));
   return m ? m[1].trim() : null;
 }
@@ -42,7 +42,8 @@ function rootCss() {
   const raw = fs.readFileSync(path.join(ROOT, 'config', 'settings_data.json'), 'utf8').replace(/^\s*\/\*[\s\S]*?\*\/\s*/, '');
   const d = JSON.parse(raw);
   const s = typeof d.current === 'object' && d.current ? d.current : d.presets.Default;
-  const c = (k) => hexToRgb(s[k]);
+  const DESIGN_NAVY = '#0b1b2b'; // the source design's navy, set as the theme's text colour
+  const c = (k) => hexToRgb(k === 'colors_text' ? DESIGN_NAVY : s[k]);
   return `:root{--font-body-family:Helvetica,Arial,sans-serif;--font-body-style:normal;--font-body-weight:400;--font-body-weight-bold:700;
 --font-heading-family:Helvetica,Arial,sans-serif;--font-heading-style:normal;--font-heading-weight:700;--font-body-scale:1;--font-heading-scale:1;
 --color-base-text:${c('colors_text')};--color-shadow:${c('colors_text')};--color-base-background-1:${c('colors_background_1')};--color-base-background-2:${c('colors_background_2')};
@@ -82,8 +83,14 @@ html{font-size:62.5%}body{margin:0;font-size:1.5rem;letter-spacing:.06rem;line-h
   const hero = renderSection(engine, 'sale-event-hero.liquid', { settings: settings.hero, objects: { collection: undefined, index: 1 } });
   const bundleHtml = renderSection(engine, 'bundle-contents.liquid', { settings: settings.bundle, objects: { index: 2 } });
 
-  fs.rmSync(OUT, { recursive: true, force: true });
+  for (const need of ['assets/base.css', 'config/settings_data.json']) {
+    if (!fs.existsSync(path.join(ROOT, need))) {
+      console.error(`missing ${need}: the preview needs the stock Dawn files of the theme this repo overlays (clone Dawn, copy this repo's files over it, run from there). Nothing was changed.`);
+      process.exit(2);
+    }
+  }
   fs.mkdirSync(path.join(OUT, 'assets'), { recursive: true });
+  for (const f of ['index.html', 'sold-out.html', 'source.html']) fs.rmSync(path.join(OUT, f), { force: true });
   for (const f of ['base.css', 'section-sale-event-hero.css', 'section-bundle-contents.css', 'sale-countdown.js']) {
     fs.copyFileSync(path.join(ROOT, 'assets', f), path.join(OUT, 'assets', f));
   }
@@ -92,9 +99,10 @@ html{font-size:62.5%}body{margin:0;font-size:1.5rem;letter-spacing:.06rem;line-h
 <title>${title}</title>
 <link href="assets/base.css" rel="stylesheet"><style>${rootCss()}
 .preview-note{font:13px/1.4 Helvetica,Arial,sans-serif;padding:10px 16px;background:#fff8e1;color:#4a3b00;border-bottom:1px solid #e6d9a8}
-.preview-note b{font-weight:700}</style></head>
+.preview-note b{font-weight:700}.preview-note a{color:inherit}</style></head>
 <body class="gradient">
-<p class="preview-note"><b>Static preview.</b> ${note} Rendered from the real Liquid files of <code>shopify-theme-lab</code> with Shopify's objects stubbed (${source}). It is not the Shopify storefront, which sits behind a password.</p>
+<p class="preview-note"><b>Static preview.</b> ${note} Rendered from the real Liquid files of <code>shopify-theme-lab</code> with Shopify's objects stubbed (${source}). It is not the Shopify storefront, which sits behind a password, so the buttons and product links do nothing here. The theme's text colour is set to the source design's navy; that is the only colour change. See also: <a href="source">the original page Claude wrote</a>, <a href="sold-out">the sold-out state</a>, <a href="./">the rebuilt page</a>.</p>
+<script>document.addEventListener('submit',function(e){e.preventDefault()});document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(a){var h=a.getAttribute('href');if(h==='#'||h.indexOf('/products')===0||h.indexOf('/collections')===0){e.preventDefault()}}})</script>
 <main>
 ${body}
 </main></body></html>

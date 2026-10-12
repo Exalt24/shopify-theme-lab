@@ -3,7 +3,7 @@
 <title>Bundle block with one part sold out</title>
 <link href="assets/base.css" rel="stylesheet"><style>:root{--font-body-family:Helvetica,Arial,sans-serif;--font-body-style:normal;--font-body-weight:400;--font-body-weight-bold:700;
 --font-heading-family:Helvetica,Arial,sans-serif;--font-heading-style:normal;--font-heading-weight:700;--font-body-scale:1;--font-heading-scale:1;
---color-base-text:0, 0, 0;--color-shadow:0, 0, 0;--color-base-background-1:250, 250, 249;--color-base-background-2:107, 107, 107;
+--color-base-text:11, 27, 43;--color-shadow:11, 27, 43;--color-base-background-1:250, 250, 249;--color-base-background-2:107, 107, 107;
 --color-base-solid-button-labels:255, 255, 255;--color-base-outline-button-labels:18, 18, 18;
 --color-base-accent-1:18, 18, 18;--color-base-accent-2:69, 192, 182;
 --gradient-base-background-1:#fafaf9;--gradient-base-background-2:#6b6b6b;--gradient-base-accent-1:#121212;--gradient-base-accent-2:#45c0b6;
@@ -12,9 +12,10 @@
 --buttons-shadow-opacity:0;--buttons-shadow-visible:0;--buttons-border-offset:0px;--inputs-radius:0px;--inputs-border-width:1px;--inputs-border-opacity:.55}
 html{font-size:62.5%}body{margin:0;font-size:1.5rem;letter-spacing:.06rem;line-height:calc(1 + .8 / var(--font-body-scale));font-family:var(--font-body-family)}
 .preview-note{font:13px/1.4 Helvetica,Arial,sans-serif;padding:10px 16px;background:#fff8e1;color:#4a3b00;border-bottom:1px solid #e6d9a8}
-.preview-note b{font-weight:700}</style></head>
+.preview-note b{font-weight:700}.preview-note a{color:inherit}</style></head>
 <body class="gradient">
-<p class="preview-note"><b>Static preview.</b> The bundle block with the wax marked unavailable. Rendered from the real Liquid files of <code>shopify-theme-lab</code> with Shopify's objects stubbed (dev store products read from its Storefront API). It is not the Shopify storefront, which sits behind a password.</p>
+<p class="preview-note"><b>Static preview.</b> The bundle block with the wax marked unavailable. Rendered from the real Liquid files of <code>shopify-theme-lab</code> with Shopify's objects stubbed (dev store products read from its Storefront API). It is not the Shopify storefront, which sits behind a password, so the buttons and product links do nothing here. The theme's text colour is set to the source design's navy; that is the only colour change. See also: <a href="source">the original page Claude wrote</a>, <a href="sold-out">the sold-out state</a>, <a href="./">the rebuilt page</a>.</p>
+<script>document.addEventListener('submit',function(e){e.preventDefault()});document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(a){var h=a.getAttribute('href');if(h==='#'||h.indexOf('/products')===0||h.indexOf('/collections')===0){e.preventDefault()}}})</script>
 <main>
 <link href="assets/section-bundle-contents.css" rel="stylesheet" type="text/css" media="all"><style data-shopify>#BundleContents-test1 {
     --bundle-pad-top: 27px;

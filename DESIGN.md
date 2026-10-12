@@ -5,7 +5,7 @@ Shopify's agent tooling reads `DESIGN.md` at the theme root, and so does the nex
 
 ## Where this came from
 
-`design-source/winter-sale.html` is a landing page generated with Claude as a single self-contained HTML file,
+`design-source/winter-sale.html` is a landing page written by Claude (October 2026) as the stand-in for a design handed over, as a single self-contained HTML file,
 with hex colours, English baked into the markup and a script that runs on `DOMContentLoaded`. The two sections
 are the conversion of that file into native Online Store 2.0 sections. `docs/CONVERSION.md` lists what had to change and why.
 
