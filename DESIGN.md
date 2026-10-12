@@ -1,7 +1,7 @@
 # Design intent for the sale-event sections
 
 Read this before editing `sections/sale-event-hero.liquid` or `sections/bundle-contents.liquid`.
-Shopify's agent tooling reads `DESIGN.md` at the theme root, and so does the next developer.
+Shopify's agent tooling reads `DESIGN.md` at the theme root (described at shopify.dev/docs/storefronts/themes/agentic-workflows/design-md), and so does the next developer.
 
 ## Where this came from
 

@@ -321,7 +321,7 @@ shopify theme push --unpublished        # pushed to the dev store
 `theme check` on the spec table and breadcrumb additions reported 48 remaining offenses across 44 files, all pre-existing in the stock
 theme. Re-run on 2026-10-12 with every check enabled and the sale sections added, the whole theme reported 495 offenses (the default configuration reports far fewer; an independent overlay run on Dawn v9.0.0 gave 16): 480 are
 `MatchingTranslations` (450 are the 15 keys of the sale sections, present only in `en.default.json` and not in the 30 other
-locale files, 30 are one stock key) and the rest are the stock ones. The sale sections' own files report 0. The older `snippets/seo-breadcrumb-jsonld.liquid` reports one `OrphanedSnippet` when the repo is overlaid on stock Dawn, because the layout that would render it is not tracked here: it is rendered from `layout/theme.liquid` (`{% render 'seo-breadcrumb-jsonld' %}` inside `<head>`).
+locale files, 30 are one stock key) and the rest are the stock ones. The sale sections' own files report 0. Three of the 16 offenses an overlay on bare Dawn v9.0.0 reports are in the tracked stock `sections/main-product.liquid`, which renders `snippets/selling-plans.liquid` and `assets/selling-plans.js` that are not tracked here (the dev store has them). The older `snippets/seo-breadcrumb-jsonld.liquid` reports one `OrphanedSnippet` when the repo is overlaid on stock Dawn, because the layout that would render it is not tracked here: it is rendered from `layout/theme.liquid` (`{% render 'seo-breadcrumb-jsonld' %}` inside `<head>`).
 
 The rendered output IS verified, in a real browser at 1280px and 390px: the spec
 table renders as a `dl` with real metafield values, the breadcrumb emits a valid
