@@ -137,6 +137,11 @@
   display: none;
 }
 
+/* An ended sale does not keep inviting people to "Shop the sale". */
+.sale-hero__countdown[data-state='ended'] ~ .sale-hero__button {
+  display: none;
+}
+
 .sale-hero__unit {
   min-width: 7.6rem;
   padding: 1.2rem 0.8rem;
