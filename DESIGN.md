@@ -28,7 +28,7 @@ There are no hex literals in the section CSS or Liquid. To check: `grep -E "#[0-
 ## Behaviour that must survive an edit
 
 - **One absolute end instant.** The countdown ends at one moment. It comes from the collection's `custom.sale_ends_at`
-  date-time metafield (read with the shop's offset, so it is an absolute instant), or from the typed time plus the zone the merchant picked. The visitor's clock only drives
+  date-time metafield (read with the shop's offset, so it is an absolute instant), or from the typed time plus the zone the merchant picked. The visitor's clock only drives (a device clock set ahead also ends the countdown early and hides the shop button)
   the display. The sale's own zone is shown whenever it is known (from the metafield or the zone picked), plus the visitor's local time when it differs.
 - **It degrades.** With JavaScript off, or with an unreadable date, the static end text from Liquid stays and nothing breaks.
 - **`<sale-countdown>` is a custom element**, so a re-render that creates and removes timers is handled (tested by cloning and removing the node; the editor itself was not used to exercise it)
@@ -38,7 +38,7 @@ There are no hex literals in the section CSS or Liquid. To check: `grep -E "#[0-
   Nothing in the theme invents a compare-at price. A discount that changes at checkout needs a Shopify Function or
   a bundle app, and these sections do not pretend otherwise.
 - **Heading level is a setting.** One `h1` per page, so the sale landing page template sets the hero to `h1` and everything else stays `h2`.
-- **Every sentence the sections print by themselves goes through `locales/en.default.json`.** The default text a merchant can edit (heading, text, button label, bundle subtitle) lives in the section settings and the templates. The one literal in the sections' own output is the abbreviation `UTC` inside the zone label, written by the section and the countdown script.
+- **Every sentence the sections print by themselves goes through `locales/en.default.json`.** The default text a merchant can edit (heading, text, button label, bundle subtitle) lives in the section settings and the templates. The literals in the sections' own output are the abbreviation `UTC` inside the zone label and the English month names of the no-JavaScript label (the `%b` date format), written by the section and the countdown script.
 
 ## What is deliberately not here
 

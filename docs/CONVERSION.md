@@ -6,7 +6,7 @@ Input: `design-source/winter-sale.html` (one HTML file). Output: `sections/sale-
 | # | Problem in the generated page | What the conversion does | Where |
 |---|---|---|---|
 | 1 | A full HTML document: `doctype`, `html`, `head`, `body`. Pasted into a theme it breaks the layout. | Fragments only. The theme's `layout/theme.liquid` owns the document. | whole of `sections/` |
-| 2 | No `{% schema %}`, so nothing is editable and it cannot be added in the theme editor. | A schema with typed settings and a preset so each section appears under "Add section". The hero also has a heading-level choice and renders designed with no content entered; the bundle section renders nothing on the storefront until parts are listed (the editor shows a hint). | `{% schema %}` at the end of each section |
+| 2 | No `{% schema %}`, so nothing is editable and it cannot be added in the theme editor. | A schema with typed settings and a preset so each section appears under "Add section". The hero also has a heading-level choice and renders designed with no content entered; the bundle section renders nothing but its stylesheet on the storefront until parts are listed (the editor shows a hint). | `{% schema %}` at the end of each section |
 | 3 | Hex colours everywhere. | Colour scheme variables from the theme. Zero hex literals. | `assets/section-*.css` |
 | 4 | Global rules (`* { margin: 0 }`, `body { ... }`) that restyle the whole store. | Every selector sits under `.sale-hero` or `.bundle-contents`. | `assets/section-*.css` |
 | 5 | English text baked into the markup. | Merchant text is a setting; fixed words go through `t`. | `locales/en.default.json` |

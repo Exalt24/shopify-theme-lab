@@ -39,7 +39,7 @@
       endcomment
       echo field | metafield_tag | strip_html | strip
     when 'url'
-      echo field.value | escape
+      echo field.value
     else
       comment
         Reference types resolve to a drop rather than a string, so print something

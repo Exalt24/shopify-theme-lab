@@ -20,7 +20,7 @@
  *
  *   STORE_PASSWORD=<password> node perf/audit.mjs <url> <label> [runs]
  *
- * The password comes from the environment, not an argument, so it never lands in shell history or the process list.
+ * The password comes from the environment, not an argument, so it is not in the process list. An inline `VAR=value` before the command can still be recorded by a shell's history: export it from a secrets file or a prompt instead.
  */
 import { writeFileSync, mkdirSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';

@@ -53,8 +53,22 @@ check('every group renders when the longer name comes second (size__a, then size
 check('a repeated group is listed once and keeps all of its rows', () => {
   const h = render({ physical__weight: text('W'), physical__length: text('L'), colour: text('C') });
   assert.deepStrictEqual(headings(h), ['Physical', 'General']);
-  assert.ok(h.includes('>W<') || h.includes('W'), 'weight row');
-  assert.ok(h.includes('L') && h.includes('C'), 'other rows');
+  const rows = [...h.matchAll(/spec-table__key">([^<]*)<\/dt>\s*<dd class="spec-table__value">\s*([^<]*?)\s*<\/dd>/g)].map((m) => `${m[1]}=${m[2]}`);
+  assert.deepStrictEqual(rows, ['Weight=W', 'Length=L', 'Colour=C']);
+});
+
+check('a key with a leading double underscore has no group name and still renders, in either order', () => {
+  for (const specs of [{ __weight: text('W'), colour: text('C') }, { colour: text('C'), __weight: text('W') }]) {
+    const h = render(specs);
+    assert.ok(/>\s*W\s*</.test(h) && />\s*C\s*</.test(h), `a row was dropped: ${JSON.stringify(Object.keys(specs))}`);
+  }
+});
+
+check('text values are escaped in the HTML, and a url value is escaped once', () => {
+  const h = render({ note: text('<script>alert(1)</script> & x'), site: { type: 'url', value: 'https://x.test/?a=1&b=2' } });
+  assert.ok(h.includes('&lt;script&gt;alert(1)&lt;/script&gt; &amp; x'), 'text escaped');
+  assert.ok(!h.includes('<script>'), 'no raw script tag');
+  assert.ok(h.includes('a=1&amp;b=2') && !h.includes('&amp;amp;'), 'url escaped exactly once');
 });
 
 check('with no metafield namespace the section renders nothing', () => {

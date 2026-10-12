@@ -88,7 +88,7 @@
         assign seen_groups = '~|~'
         for pair in ns
           assign parts = pair[0] | split: '__'
-          if parts.size > 1
+          if parts.size > 1 and parts[0] != ''
             assign gname = parts[0] | replace: '_', ' ' | capitalize
           else
             assign gname = section.settings.default_group | default: 'General'
@@ -118,7 +118,7 @@
         {%- for pair in ns -%}
           {%- liquid
             assign gparts = pair[0] | split: '__'
-            if gparts.size > 1
+            if gparts.size > 1 and gparts[0] != ''
               assign row_group = gparts[0] | replace: '_', ' ' | capitalize
             else
               assign row_group = section.settings.default_group | default: 'General'
@@ -127,7 +127,7 @@
           {%- if row_group != group -%}{% continue %}{%- endif -%}
           {%- liquid
             assign key_parts = pair[0] | split: '__'
-            if key_parts.size > 1
+            if key_parts.size > 1 and key_parts[0] != ''
               assign key = key_parts | last
             else
               assign key = pair[0]
@@ -163,7 +163,8 @@
             <div class="spec-table__row">
               <dt class="spec-table__key">{{ label | escape }}</dt>
               <dd class="spec-table__value">
-                {%- render 'spec-value', field: field -%}
+                {%- capture spec_text -%}{%- render 'spec-value', field: field -%}{%- endcapture -%}
+                {{- spec_text | escape -}}
               </dd>
             </div>
           {%- endif -%}
