@@ -1,0 +1,193 @@
+/*
+  sale-event-hero: every colour comes from the colour scheme the merchant picked in the theme editor
+  (--color-foreground, --color-background, --gradient-background), so changing a theme colour re-themes
+  this section with no edit here. No hex literals on purpose.
+  All selectors sit under .sale-hero so nothing leaks into the rest of the theme.
+*/
+
+.sale-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: rgb(var(--color-foreground));
+  background: var(--gradient-background);
+  text-align: center;
+}
+
+.sale-hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.sale-hero__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgb(var(--color-background));
+  opacity: var(--sale-hero-overlay, 0.6);
+}
+
+.sale-hero__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sale-hero__inner {
+  max-width: var(--page-width);
+  margin: 0 auto;
+  padding: var(--sale-hero-pad-top, 4.8rem) 1.5rem var(--sale-hero-pad-bottom, 4.8rem);
+}
+
+@media screen and (min-width: 750px) {
+  .sale-hero__inner {
+    padding-left: 5rem;
+    padding-right: 5rem;
+  }
+}
+
+.sale-hero__eyebrow {
+  margin: 0 0 1.2rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.sale-hero__heading {
+  margin: 0 auto 1.6rem;
+  max-width: 14ch;
+  font-family: var(--font-heading-family);
+  font-style: var(--font-heading-style);
+  font-weight: var(--font-heading-weight);
+  font-size: clamp(3.4rem, 6vw, 6rem);
+  line-height: 1.05;
+  overflow-wrap: break-word;
+}
+
+.sale-hero__text {
+  margin: 0 auto 2.8rem;
+  max-width: 52rem;
+  font-size: 1.8rem;
+  line-height: 1.5;
+}
+
+.sale-hero__text > :first-child {
+  margin-top: 0;
+}
+
+.sale-hero__text > :last-child {
+  margin-bottom: 0;
+}
+
+.sale-hero__countdown {
+  display: block;
+  margin: 0 0 3.2rem;
+}
+
+.sale-hero__ends,
+.sale-hero__local,
+.sale-hero__ended {
+  margin: 0 0 1.2rem;
+  font-size: 1.5rem;
+}
+
+.sale-hero__ends {
+  min-height: 1.5em;
+}
+
+.sale-hero__local {
+  min-height: 1.5em;
+  opacity: 0.85;
+}
+
+/* The local-time line keeps its space while hidden, so showing it later never pushes the page down (CLS). */
+.sale-hero__local[hidden] {
+  display: block;
+  visibility: hidden;
+}
+
+.sale-hero__ended {
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.sale-hero__units {
+  display: flex;
+  gap: 1.2rem;
+  justify-content: center;
+  margin: 0 0 1.6rem;
+  padding: 0;
+  list-style: none;
+  min-height: 8.4rem;
+}
+
+/* Room is reserved before the script runs, so the tiles appearing never move the page (CLS). */
+.sale-hero__countdown[data-state='pending'] .sale-hero__units,
+.sale-hero__countdown[data-state='invalid'] .sale-hero__units,
+.sale-hero__countdown[data-state='ended'] .sale-hero__units {
+  visibility: hidden;
+}
+
+.sale-hero__countdown[data-state='ended'] .sale-hero__units,
+.sale-hero__countdown[data-state='invalid'] .sale-hero__units {
+  display: none;
+}
+
+/* An ended sale does not keep inviting people to "Shop the sale". */
+.sale-hero__countdown[data-state='ended'] ~ .sale-hero__button {
+  display: none;
+}
+
+.sale-hero__unit {
+  min-width: 7.6rem;
+  padding: 1.2rem 0.8rem;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.2);
+  border-radius: 1.2rem;
+  background: rgba(var(--color-foreground), 0.08);
+}
+
+.sale-hero__number {
+  display: block;
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.sale-hero__caption {
+  display: block;
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+@media screen and (max-width: 749px) {
+  .sale-hero__caption {
+    letter-spacing: 0.04em;
+  }
+
+  .sale-hero__units {
+    gap: 0.8rem;
+    min-height: 7.4rem;
+  }
+
+  .sale-hero__unit {
+    min-width: 0;
+    flex: 1 1 0;
+    max-width: 8.4rem;
+    padding: 1rem 0.4rem;
+  }
+
+  .sale-hero__number {
+    font-size: 2.4rem;
+  }
+}
+
+.sale-hero__button {
+  min-width: 18rem;
+}

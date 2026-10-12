@@ -52,9 +52,30 @@ How it was checked (figures from runs on 2026-10-12):
 | `shopify theme check --output json`, filtered to the files added here | 0 offenses. |
 | `node tests/countdown.test.cjs`: Chromium with a controlled clock | 22 of 22. It caught a real bug of mine in the local-time line while it was being written. |
 | `node tests/countdown_mutants.cjs`: planted defects | 15 of 15 caught (timer leaks, ignored zone offset, wrong day length, no end state, HTML injection, accepted impossible dates, listener leaks, and others) |
+| `node tests/liquid.test.cjs`: the real section Liquid executed through LiquidJS with Shopify's objects stubbed | 18 of 18: saving maths, whole-number percent, sold-out part and sold-out bundle, no saving row when the bundle is not cheaper, the metafield instant reaching the script as the same moment in six render zones, collection priority, escaping, heading level, image priority, every string present in the locale file. |
+| `node tests/liquid_mutants.cjs`: planted defects in the Liquid | 16 of 16 caught |
+
+**What the Liquid tests are and are not.** `tests/render/shopify_liquid.cjs` is my own stand-in for the Shopify
+objects, filters and tags the two sections use (`money`, `t`, `image_url`, `{% form %}`, `{% style %}`, a date filter
+that prints a time in a given offset). It runs the real `.liquid` files, so the branches and maths are exercised, but
+it is not Shopify's renderer: how Shopify prints a `date_time` metafield, and how the theme editor behaves, are not
+proved by it. The section prints the offset it was rendered in precisely so the end moment is right either way, and
+the tests check that for six zones.
+
+**Rendered output without the store password.** `npm run preview` renders both sections from those real files, fed
+with the dev store's own product titles, prices and images read from its public Storefront API, styled with the theme's
+own `base.css` and colour settings, and screenshots them at 390px and 1280px with a fixed clock. The result is
+`preview/index.html` (open it in a browser) with `preview/phone-390.png` and `preview/laptop-1280.png`. In the run of
+2026-10-12 the sale zone and a visitor's own time both show (a Manila browser reads "That is Sat, Nov 28, 12:59 PM
+GMT+8 where you are."), the saving reads "You save $44.95 (6.2%)" against the parts' list prices, and there is no
+horizontal overflow at either width.
+
+![Laptop width](preview/laptop-1280.png)
+![Phone width](preview/phone-390.png)
 
 Not done, stated plainly: the sections were not run through Shopify's theme editor itself (add, edit, reorder, delete
-by hand), the quantities of parts in a bundle are always one, and a bundle with several variants prices only its first.
+by hand), the storefront render itself is unchecked (the dev store is password-protected, and the preview above is a
+static render, not that storefront), the quantities of parts in a bundle are always one, and a bundle with several variants prices only its first.
 The typed-time zone picker offers five fixed offsets (no daylight-saving ones), so a sale between roughly March and
 October should use the collection metafield instead. The colour-scheme options `accent-2` and `background-2` fail
 contrast on the default preset (the hero section warns about it in its settings). Only English locale keys exist for the new sections.

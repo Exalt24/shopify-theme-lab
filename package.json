@@ -6,6 +6,9 @@
   "scripts": {
     "test": "node tests/countdown.test.cjs",
     "test:mutants": "node tests/countdown_mutants.cjs",
+    "test:liquid": "node tests/liquid.test.cjs",
+    "test:liquid-mutants": "node tests/liquid_mutants.cjs",
+    "preview": "node tests/render/build_preview.cjs && node tests/render/shoot.cjs",
     "css": "sass styles/spec-table.scss assets/spec-table.css --style=compressed --no-source-map",
     "css:watch": "sass --watch styles/spec-table.scss assets/spec-table.css --no-source-map",
     "check": "shopify theme check"
@@ -26,6 +29,7 @@
     "lighthouse": "^13.4.1"
   },
   "devDependencies": {
+    "liquidjs": "^10.30.0",
     "playwright": "^1.50.0",
     "sass": "^1.103.1"
   }
