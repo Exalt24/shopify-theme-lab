@@ -25,7 +25,6 @@ sections/*
 snippets/*
 !snippets/seo-breadcrumb-jsonld.liquid
 !snippets/spec-value.liquid
-!snippets/third-party-sim.liquid
 layout/
 node_modules/
 .shopify/

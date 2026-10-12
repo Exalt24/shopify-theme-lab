@@ -100,8 +100,8 @@
         data-offset="{{ section.settings.utc_offset }}"
         data-ends-at-utc="{{ ends_utc }}"
         data-utc-zone="{{ ends_zone }}"
-        data-ends-template="{{ 'sections.sale_event_hero.ends_label' | t: date: '__DATE__' }}"
-        data-local-template="{{ 'sections.sale_event_hero.ends_local' | t: date: '__DATE__' }}"
+        data-ends-template="{{ 'sections.sale_event_hero.ends_label' | t: date: '__DATE__' | escape }}"
+        data-local-template="{{ 'sections.sale_event_hero.ends_local' | t: date: '__DATE__' | escape }}"
       >
         <p class="sale-hero__ends" data-ends-label>
           {{- 'sections.sale_event_hero.ends_label' | t: date: static_label -}}

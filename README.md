@@ -5,7 +5,7 @@ that fix gaps the stock theme leaves open, plus a measured performance diagnosis
 of a public storefront.
 
 Store: `dac-dev-store.myshopify.com` (development store, password-protected).
-Theme validated with Shopify's own `theme check` and pushed with the Shopify CLI.
+Checked with Shopify's own `theme check` (0 offenses on the files added here; the stock theme has its own, see "Verifying it") and pushed with the Shopify CLI.
 
 ---
 
@@ -44,6 +44,8 @@ What the sections do that the generated page did not:
   discount that varies by cart needs a Shopify Function or a bundle app. "Bought separately" is the parts' list
   price, so the parts must stay out of any discounted collection: a review found that tagging the parts into the
   10% sale made the page say "You save" while the parts were cheaper than the bundle, and the seed now keeps them out.
+
+- **The look follows the store's theme, not the original page.** The rebuilt hero takes the theme's colour scheme (black on this store's Dawn colours, navy in the static copy where the text colour is set to the source's navy) and the button is the theme's own button. The original's amber pill button, gradient and three-card product grid are not rebuilt; `docs/CONVERSION.md` lists each difference.
 
 How it was checked (figures from runs on 2026-10-12):
 
@@ -225,7 +227,7 @@ product template without leaving an orphan heading on products that have no spec
 
 **`perf/app-cost.mjs` is the useful one.** It attributes bytes and main-thread time
 to each third-party origin on a page, which turns "optimize Core Web Vitals" into a
-list sorted by cost. Run against a public industrial-supplies storefront it produced this (the raw
+list sorted by cost. Run against a public Shopify storefront it produced this (the raw
 reports are not committed, because they name that store; rerun the script against
 any public product page to reproduce the method):
 
@@ -279,7 +281,7 @@ HTML, matching it at render time did not work either. Both failures were silent.
 
 ### 4. The original diagnosis
 
-Lighthouse against a **public Shopify storefront** in the same industrial-supplies space, mobile emulation,
+Lighthouse against a **public Shopify storefront**, mobile emulation,
 simulated throttling (150 ms RTT, 1.6 Mbps, 4x CPU slowdown):
 
 | Metric | Value |

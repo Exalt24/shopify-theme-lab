@@ -18,7 +18,9 @@
  * Comparing medians is the cheapest defence against reporting a win that is not
  * there.
  *
- *   node perf/audit.mjs <url> <password> <label> [runs]
+ *   STORE_PASSWORD=<password> node perf/audit.mjs <url> <label> [runs]
+ *
+ * The password comes from the environment, not an argument, so it never lands in shell history or the process list.
  */
 import { writeFileSync, mkdirSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -29,11 +31,12 @@ const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_PATH || 'playwright');
 const lighthouse = (await import('lighthouse')).default;
 
-const [, , URL_ARG, PASSWORD, LABEL, RUNS_ARG] = process.argv;
+const [, , URL_ARG, LABEL, RUNS_ARG] = process.argv;
+const PASSWORD = process.env.STORE_PASSWORD;
 const RUNS = Number(RUNS_ARG || 3);
 
-if (!URL_ARG || !LABEL) {
-  console.error('usage: node perf/audit.mjs <url> <password> <label> [runs]');
+if (!URL_ARG || !LABEL || !PASSWORD) {
+  console.error('usage: STORE_PASSWORD=<password> node perf/audit.mjs <url> <label> [runs]');
   process.exit(1);
 }
 
