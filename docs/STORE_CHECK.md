@@ -28,6 +28,6 @@ A first Lighthouse run on 2026-10-12 reported a score of 100 for "7 requests and
 - No section was built from scratch by hand in the editor, and nothing was saved from it: the editor was read, not edited.
 - The sale was not taken through Shopify's hosted checkout page; the discount was read from a real cart's line allocations (item 7).
 - Only English locale keys exist for the new sections, and the typed-time zone picker has five fixed offsets (a sale between roughly March and October should use the metafield).
-- Two colour-scheme options (`accent-2`, `background-2`) fail contrast on the default colours, which the hero section warns about in its settings.
+- Two colour-scheme options (`accent-2`, `background-2`) fail contrast on the default colours, and the hero's colour-scheme setting carries a generic hint to check contrast after changing it.
 
 The scripts that drove this live in my private workspace tooling because they sign in with credentials. Items 1 to 7, 10 and 12 can be repeated by anyone with the storefront password; items 8 and 9 change store data and need an Admin token; the editor check needs an admin login.

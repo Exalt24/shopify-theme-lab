@@ -5,7 +5,9 @@ that fix gaps the stock theme leaves open, plus a measured performance diagnosis
 of a public storefront.
 
 Store: `dac-dev-store.myshopify.com` (development store, password-protected).
-Checked with Shopify's own `theme check` (0 offenses on the files added here; the stock theme has its own, see "Verifying it") and pushed with the Shopify CLI.
+Checked with Shopify's own `theme check` (0 offenses on the sale sections, their CSS, JS, templates and locale keys; the stock theme has its own, and the older breadcrumb snippet reports one, see "Verifying it") and pushed with the Shopify CLI.
+
+Static copy of the sale sections you can open without the store password: https://sale-sections-preview.pages.dev/ (the page Claude wrote is at `/source`).
 
 ---
 
@@ -51,7 +53,7 @@ How it was checked (figures from runs on 2026-10-12):
 
 | Check | Result |
 |---|---|
-| `shopify theme check --output json`, filtered to the files added here | 0 offenses. |
+| `shopify theme check --output json`, filtered to the sale sections' own files (sections, CSS, JS, templates, locale keys) | 0 offenses. |
 | `node tests/countdown.test.cjs`: Chromium with a controlled clock | 22 of 22. It caught a real bug of mine in the local-time line while it was being written. |
 | `node tests/countdown_mutants.cjs`: planted defects | 15 of 15 caught (timer leaks, ignored zone offset, wrong day length, no end state, HTML injection, accepted impossible dates, listener leaks, and others) |
 | `node tests/liquid.test.cjs`: the real section Liquid executed through LiquidJS with Shopify's objects stubbed | 20 of 20: saving maths, whole-number percent, sold-out part and sold-out bundle, no saving row when the bundle is not cheaper, the metafield instant reaching the script as the same moment in six render zones, collection priority, escaping, heading level, image priority, every string present in the locale file. |
@@ -106,10 +108,10 @@ as the project `sale-sections-preview`.
 
 Not done, stated plainly: the editor was read and not used to build or save a page by hand, the sale was not taken
 through Shopify's hosted checkout page (the discount was read from a real cart), the quantities of parts in a bundle are
-always one, and a bundle with several variants prices only its first.
+always one, and a bundle with several variants prices its first available one.
 The typed-time zone picker offers five fixed offsets (no daylight-saving ones), so a sale between roughly March and
 October should use the collection metafield instead. The colour-scheme options `accent-2` and `background-2` fail
-contrast on the default preset (the hero section warns about it in its settings). Only English locale keys exist for the new sections.
+contrast on the default preset (the hero's colour-scheme setting carries a generic hint to check the heading's contrast after changing it). Only English locale keys exist for the new sections.
 
 This repository is an overlay on Shopify's stock Dawn theme (MIT, see `LICENSE`). Most stock files are git-ignored on
 purpose (see `.gitignore`), but a few edited or stock files are tracked because earlier work changed them:
@@ -316,10 +318,10 @@ shopify theme check                     # my two files: zero offenses
 shopify theme push --unpublished        # pushed to the dev store
 ```
 
-`theme check` on the two additions reported 48 remaining offenses across 44 files, all pre-existing in the stock
+`theme check` on the spec table and breadcrumb additions reported 48 remaining offenses across 44 files, all pre-existing in the stock
 theme. Re-run on 2026-10-12 with the sale sections added, the whole theme reports 495 offenses: 480 are
 `MatchingTranslations` (450 are the 15 keys of the sale sections, present only in `en.default.json` and not in the 30 other
-locale files, 30 are one stock key) and the rest are the stock ones. The new files themselves report 0.
+locale files, 30 are one stock key) and the rest are the stock ones. The sale sections' own files report 0. The older `snippets/seo-breadcrumb-jsonld.liquid` reports one `OrphanedSnippet` when the repo is overlaid on stock Dawn, because the layout that would render it is not tracked here: it is rendered from `layout/theme.liquid` (`{% render 'seo-breadcrumb-jsonld' %}` inside `<head>`).
 
 The rendered output IS verified, in a real browser at 1280px and 390px: the spec
 table renders as a `dl` with real metafield values, the breadcrumb emits a valid
