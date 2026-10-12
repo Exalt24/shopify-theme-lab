@@ -18,7 +18,9 @@
  *
  *   node perf/audit.mjs <url> <password> <label> [runs]
  */
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync, mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
@@ -85,16 +87,35 @@ function median(values) {
   return s[Math.floor(s.length / 2)];
 }
 
-const cookie = await storefrontCookie();
-console.log('logged in, auditing', URL_ARG);
-
-const browser = await chromium.launch({
+// Log in INSIDE the browser Lighthouse will drive, and tell Lighthouse not to wipe storage. Forwarding the cookie as an
+// extra header from another browser does not survive Shopify's redirects: the audit then lands on /password and scores
+// a form (found 2026-10-12: 7 requests and 82 KB for a page that really makes about 320 requests).
+const profile = mkdtempSync(path.join(tmpdir(), 'lh-profile-'));
+const browser = await chromium.launchPersistentContext(profile, {
   headless: true,
   args: ['--remote-debugging-port=9222', '--no-sandbox'],
 });
+let loginPage;
+{
+  const page = await browser.newPage();
+  loginPage = page;
+  const origin = new URL(URL_ARG).origin;
+  await page.goto(`${origin}/password`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  if (await page.$('input[type="password"]')) {
+    await page.fill('input[type="password"]', PASSWORD);
+    await page.press('input[type="password"]', 'Enter');
+    await page.waitForLoadState('networkidle').catch(() => {});
+  }
+  if (new URL(page.url()).pathname.includes('password')) throw new Error('the storefront password was not accepted');
+  console.log('logged in, auditing', URL_ARG);
+}
 
 const runs = [];
 for (let i = 0; i < RUNS; i += 1) {
+  // Cold cache every run (cookies stay): a warm second run would report a page nobody sees on a first visit.
+  const cdp = await browser.newCDPSession(loginPage);
+  await cdp.send('Network.clearBrowserCache');
+  await cdp.detach();
   const result = await lighthouse(URL_ARG, {
     port: 9222,
     output: 'json',
@@ -103,8 +124,13 @@ for (let i = 0; i < RUNS; i += 1) {
     formFactor: 'mobile',
     screenEmulation: { mobile: true, width: 390, height: 844, deviceScaleFactor: 2 },
     throttlingMethod: 'simulate',
-    extraHeaders: { Cookie: cookie },
+    disableStorageReset: true,
   });
+  // A score for the password form is worse than no score: refuse a run that did not end on the page asked for.
+  const landed = result.lhr.finalDisplayedUrl || result.lhr.finalUrl || '';
+  if (/\/password/.test(landed) || !new URL(landed).pathname.startsWith(new URL(URL_ARG).pathname)) {
+    throw new Error(`the audit landed on ${landed}, not ${URL_ARG}: the password did not carry into Lighthouse`);
+  }
   const m = metrics(result.lhr);
   runs.push(m);
   console.log(`  run ${i + 1}: score ${m.score}  lcp ${m.lcp_ms}ms  tbt ${m.tbt_ms}ms  ${m.transfer_kb}KB`);

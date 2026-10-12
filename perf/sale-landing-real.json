@@ -1,0 +1,78 @@
+{
+  "url": "https://dac-dev-store.myshopify.com/pages/winter-sale-landing?preview_theme_id=189263937757",
+  "label": "sale-landing-real",
+  "runs": [
+    {
+      "score": 97,
+      "lcp_ms": 2107,
+      "fcp_ms": 2107,
+      "tbt_ms": 56,
+      "cls": 0.014,
+      "si_ms": 2566,
+      "requests": 139,
+      "transfer_kb": 1387,
+      "script_eval_ms": 510,
+      "unused_js_kb": 105
+    },
+    {
+      "score": 86,
+      "lcp_ms": 3243,
+      "fcp_ms": 3120,
+      "tbt_ms": 6,
+      "cls": 0.014,
+      "si_ms": 3876,
+      "requests": 149,
+      "transfer_kb": 1448,
+      "script_eval_ms": 515,
+      "unused_js_kb": 105
+    },
+    {
+      "score": 92,
+      "lcp_ms": 2684,
+      "fcp_ms": 2684,
+      "tbt_ms": 6,
+      "cls": 0.014,
+      "si_ms": 3350,
+      "requests": 136,
+      "transfer_kb": 1312,
+      "script_eval_ms": 503,
+      "unused_js_kb": 105
+    },
+    {
+      "score": 91,
+      "lcp_ms": 2759,
+      "fcp_ms": 2609,
+      "tbt_ms": 43,
+      "cls": 0.014,
+      "si_ms": 3314,
+      "requests": 155,
+      "transfer_kb": 1466,
+      "script_eval_ms": 528,
+      "unused_js_kb": 105
+    },
+    {
+      "score": 91,
+      "lcp_ms": 2672,
+      "fcp_ms": 2672,
+      "tbt_ms": 5,
+      "cls": 0.014,
+      "si_ms": 3486,
+      "requests": 140,
+      "transfer_kb": 1419,
+      "script_eval_ms": 486,
+      "unused_js_kb": 105
+    }
+  ],
+  "median": {
+    "score": 91,
+    "lcp_ms": 2684,
+    "fcp_ms": 2672,
+    "tbt_ms": 6,
+    "cls": 0.014,
+    "si_ms": 3350,
+    "requests": 140,
+    "transfer_kb": 1419,
+    "script_eval_ms": 510,
+    "unused_js_kb": 105
+  }
+}

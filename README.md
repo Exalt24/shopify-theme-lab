@@ -58,11 +58,26 @@ How it was checked (figures from runs on 2026-10-12):
 **What the Liquid tests are and are not.** `tests/render/shopify_liquid.cjs` is my own stand-in for the Shopify
 objects, filters and tags the two sections use (`money`, `t`, `image_url`, `{% form %}`, `{% style %}`, a date filter
 that prints a time in a given offset). It runs the real `.liquid` files, so the branches and maths are exercised, but
-it is not Shopify's renderer: how Shopify prints a `date_time` metafield, and how the theme editor behaves, are not
-proved by it. The section prints the offset it was rendered in precisely so the end moment is right either way, and
-the tests check that for six zones.
+it is not Shopify's renderer. The two things it cannot prove, how Shopify prints a `date_time` metafield and how the
+theme editor behaves, were checked on the real store the same day (below). The section prints the offset it was
+rendered in precisely so the end moment is right either way, and the tests check that for six zones.
 
-**Rendered output without the store password.** `npm run preview` renders both sections from those real files, fed
+**Checked on the real Shopify storefront and theme editor (2026-10-12).** The files of this repo were pushed to a
+development store's unpublished theme and read there in a real browser; the record, with screenshots, is
+[`docs/STORE_CHECK.md`](docs/STORE_CHECK.md). Short version: the landing page and the collection template render with
+no missing translations or overflow; Shopify prints the `date_time` metafield in the shop's zone and `%:z` gives its
+offset (`23:59:00-05:00`), so the end moment is right; a Manila browser reads "Sat, Nov 28, 12:59 PM GMT+8" and a Sydney
+one "3:59 PM GMT+11"; with JavaScript off the static label and the bundle still read correctly; a real cart shows the
+10% automatic discount on the sale board ($749.95 to $674.96) and none on the bundle or its parts; with every variant of
+the wax at zero stock the button reads Sold out, and the inventory was restored exactly; a theme colour change
+carries through to the hero and the bundle heading; the theme editor lists both sections, shows their settings, and
+offers them in the Add section list; Lighthouse (mobile, cold, five runs) has a median of 91 (the page weight is Dawn's
+own grid images); axe finds nothing inside either section at 390px and 1280px.
+
+![The sale landing page on the real storefront](docs/store-check/landing-desktop-manila.png)
+![The hero's settings in the theme editor](docs/store-check/editor-hero-settings.png)
+
+**A static copy anyone can open (the dev store itself is behind its password).** `npm run preview` renders both sections from those real files, fed
 with the dev store's own product titles, prices and images read from its public Storefront API, styled with the theme's
 own `base.css` and colour settings, and screenshots them at 390px and 1280px with a fixed clock. The result is
 `preview/index.html` (open it in a browser) with `preview/phone-390.png` and `preview/laptop-1280.png`. In the run of
@@ -86,9 +101,9 @@ as the project `sale-sections-preview`.
 ![Laptop width](preview/laptop-1280.png)
 ![Phone width](preview/phone-390.png)
 
-Not done, stated plainly: the sections were not run through Shopify's theme editor itself (add, edit, reorder, delete
-by hand), the storefront render itself is unchecked (the dev store is password-protected, and the preview above is a
-static render, not that storefront), the quantities of parts in a bundle are always one, and a bundle with several variants prices only its first.
+Not done, stated plainly: the editor was read and not used to build or save a page by hand, the sale was not taken
+through Shopify's hosted checkout page (the discount was read from a real cart), the quantities of parts in a bundle are
+always one, and a bundle with several variants prices only its first.
 The typed-time zone picker offers five fixed offsets (no daylight-saving ones), so a sale between roughly March and
 October should use the collection metafield instead. The colour-scheme options `accent-2` and `background-2` fail
 contrast on the default preset (the hero section warns about it in its settings). Only English locale keys exist for the new sections.
@@ -231,8 +246,11 @@ earns 800 KB is a revenue question, not a bytes question.
 
 **`perf/audit.mjs`** runs Lighthouse against a password-gated development store,
 which a plain `npx lighthouse` cannot do: the store 302s to /password and you end
-up auditing a login form and reporting a lovely score for it. It logs in with
-Playwright first and passes the cookie jar through. It also runs N times and
+up auditing a login form and reporting a lovely score for it. It logs in INSIDE the
+browser Lighthouse drives (an earlier version forwarded a cookie header from another
+browser, which Shopify's redirects defeated, and scored the password page: 7 requests and
+82 KB for a page that really makes about 140), clears the cache between runs, and refuses
+any run that did not end on the page it was asked for. It also runs N times and
 reports the median, because a single run varies by several points and a
 before/after built from one run each can show a win that is entirely noise.
 
