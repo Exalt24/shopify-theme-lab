@@ -97,7 +97,7 @@ the preview builder read (`colors_text`, `colors_accent_1`, ...) with colour-sch
 builder warns and falls back to a plain palette (the sections themselves expect the older colour-scheme classes). It
 stops without changing anything if the two Dawn files are missing. It reads the dev store's public Storefront token from
 `SHOPIFY_STOREFRONT_TOKEN` (or a file named by `SHOPIFY_STOREFRONT_TOKEN_FILE`) and falls back to stub products
-without one; Node 18 or newer is needed (global `fetch`), Python 3 only for the seed script.
+without one; Node 20 or newer is needed (the Playwright and Sass versions in `package-lock.json` require it), Python 3 only for the seed script.
 Its buttons and product links are inert, its product images are hot-linked from the dev store's CDN, its countdown
 ends at the fixed instant 2026-11-28T04:59:00Z (after which it shows the ended state), and the theme's text colour is
 set to the source design's navy to show that a colour setting carries through. It is deployed to Cloudflare Pages
@@ -144,8 +144,8 @@ Three decisions worth reading the file for:
   that route and nil on the bare product URL, so the crumb appears exactly when it
   is true. Deriving a category from the handle would produce structured data that
   contradicts the page, which is worse than none.
-- **Absolute URLs via `request.origin`.** Google drops a relative `item`, and
-  hardcoding a domain rots the moment the theme is previewed elsewhere.
+- **Absolute URLs via `request.origin`.** Hardcoding a domain rots the moment
+  the theme is previewed elsewhere.
 - **Every value goes through `| json`.** A product title containing an inch mark,
   which in a technical catalogue is routine, otherwise produces invalid JSON and
   takes the whole block down.
@@ -174,7 +174,7 @@ The specs reach structured data through the theme's **own** Product node in
 `{"@type":"Product","@id":"...#product","additionalProperty":[...]}` on the belief
 that Google merges nodes sharing an `@id`. **The theme's real Product node has no
 `@id` at all**, so nothing matched and the page shipped two Product entities, the
-second with no `name`, which is the single field Product requires. The live page
+second with no `name`, a required Product property. The live page
 confirmed it before the fix: `Product nodes on page: 2`.
 
 Two more bugs worth knowing, both of which looked fine until they did not:
@@ -244,7 +244,7 @@ any public product page to reproduce the method):
 Third party came to **3,697 KB and 457 ms of CPU against the store's own 166 ms**,
 64% of the bytes on the page. One tag manager container was 1,985 KB.
 
-It separates Shopify's own platform requests from apps (matched by URL, so Shopify's CDN is not counted as a third-party origin), because counting the
+It separates Shopify's own platform scripts and the store's own files on Shopify's CDN from apps (matched by URL, so they are not counted as a third-party origin), because counting the
 platform as app cost inflates every number and points a merchant at savings they
 cannot have. The app-cost figures quoted in this section come from the first version of the tool, which grouped requests by origin only and so counted some Shopify CDN requests as third party: read them as an upper bound. It deliberately does not recommend removals: whether a review widget
 earns 800 KB is a revenue question, not a bytes question.

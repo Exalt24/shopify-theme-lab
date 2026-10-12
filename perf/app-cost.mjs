@@ -49,12 +49,13 @@ const PLATFORM = [
   /monorail-edge\.shopifysvc\.com/,
   /shopifycloud\/portable-wallets/,
   /storefront\/standard-actions/,
+  /cdn\.shopify\.com\/s\/files\//,   // the store's own images and theme files, not an app
 ];
 
 const isPlatform = (u) => PLATFORM.some((re) => re.test(u));
-/** A request is judged by its full URL (the platform patterns need a path), so platform requests served from
- *  Shopify's CDN are grouped under one row instead of being counted as a third-party origin. */
-const PLATFORM_ORIGIN = 'https://shopify-platform (matched by URL)';
+/** A request is judged by its full URL (the patterns need a path), so Shopify's platform scripts and the store's own
+ *  files served from Shopify's CDN are grouped under one row instead of being counted as a third-party origin. */
+const PLATFORM_ORIGIN = 'https://shopify-platform-and-store-files (matched by URL)';
 const originOf = (u) => (isPlatform(u) ? PLATFORM_ORIGIN : new URL(u).origin);
 
 const browser = await chromium.launch({ headless: true });

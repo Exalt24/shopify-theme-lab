@@ -1,7 +1,7 @@
 // Tests for assets/sale-countdown.js, run in a real Chromium with a controlled clock.
 //   node tests/countdown.test.cjs                 tests the real asset
 //   COUNTDOWN_JS=<path> node tests/countdown.test.cjs   tests another copy (used by countdown_mutants.cjs)
-// The markup below is what sections/sale-event-hero.liquid renders for the countdown block.
+// The markup below is a simplified copy of what sections/sale-event-hero.liquid renders for the countdown block.
 const path = require('path');
 const { chromium } = require(process.env.PLAYWRIGHT_PATH || 'playwright');
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Seed the dev store with the data the sale-event sections read.
 
-Dev store only (dac-dev-store, synthetic data). It creates what is missing and re-applies the tags and settings on every run:
+Dev store only (dac-dev-store, synthetic data). It creates what is missing and re-applies the product tags on every run:
   - product metafield definition  custom.bundle_items  (list of products)
   - collection metafield definition custom.sale_ends_at (date and time)
   - a bundle product "Rider Starter Bundle" (its own price, components listed in bundle_items; no SKU is set)
