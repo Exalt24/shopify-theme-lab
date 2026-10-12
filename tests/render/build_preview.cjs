@@ -105,6 +105,8 @@ ${body}
   const soldOutWax = { ...wax, available: false, selected_or_first_available_variant: { ...wax.selected_or_first_available_variant, available: false } };
   const soldOutBundle = bundleProduct([board, soldOutWax], bundle.selected_or_first_available_variant.price, true);
   const soldOutHtml = renderSection(engine, 'bundle-contents.liquid', { settings: { bundle_product: soldOutBundle, show_add_to_cart: true }, objects: { index: 2 } });
+  // The original Claude-made page, so the before and the after can be opened side by side.
+  fs.copyFileSync(path.join(ROOT, 'design-source', 'winter-sale.html'), path.join(OUT, 'source.html'));
   fs.writeFileSync(path.join(OUT, 'sold-out.html'), page('Bundle block with one part sold out', 'The bundle block with the wax marked unavailable.', soldOutHtml));
   console.log('wrote preview/index.html,', source);
 })().catch((e) => { console.error(e); process.exit(1); });

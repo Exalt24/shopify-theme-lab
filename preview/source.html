@@ -1,0 +1,89 @@
+<!doctype html>
+<!--
+  SOURCE DESIGN, NOT PART OF THE THEME.
+  This is the kind of page a team hands over after asking Claude for "a Black Friday winter sale landing page":
+  one self-contained HTML file with hex colours, hardcoded English, a plain <img>-free layout and a script that
+  runs on DOMContentLoaded. It cannot be pasted into a Shopify theme as it stands (full document, global CSS,
+  hardcoded content, no schema). sections/ in this repo is the conversion; docs/CONVERSION.md is the checklist.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Winter Sale</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Inter, system-ui, sans-serif; background: #f4f7fb; color: #0b1b2b; line-height: 1.5; }
+  .hero { background: linear-gradient(135deg, #0b1b2b 0%, #16324f 100%); color: #ffffff; padding: 72px 24px 64px; text-align: center; }
+  .hero .eyebrow { display: inline-block; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: #ffb84d; margin-bottom: 16px; font-weight: 600; }
+  .hero h1 { font-size: clamp(34px, 6vw, 60px); line-height: 1.05; max-width: 14ch; margin: 0 auto 16px; }
+  .hero p { max-width: 52ch; margin: 0 auto 28px; color: #c9d6e6; font-size: 18px; }
+  .timer { display: flex; gap: 12px; justify-content: center; margin-bottom: 32px; }
+  .timer div { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); border-radius: 12px; min-width: 76px; padding: 12px 8px; }
+  .timer b { display: block; font-size: 30px; font-variant-numeric: tabular-nums; }
+  .timer span { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: #9fb4cc; }
+  .btn { display: inline-block; background: #ffb84d; color: #0b1b2b; font-weight: 700; padding: 16px 32px; border-radius: 999px; text-decoration: none; }
+  .bundle { max-width: 960px; margin: -32px auto 48px; background: #ffffff; border-radius: 20px; box-shadow: 0 18px 48px rgba(11,27,43,.14); padding: 32px; position: relative; }
+  .bundle h2 { font-size: 26px; margin-bottom: 4px; }
+  .bundle .sub { color: #5b6e84; margin-bottom: 24px; }
+  .items { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .item { border: 1px solid #dfe7f1; border-radius: 14px; padding: 16px; }
+  .item .ph { aspect-ratio: 4 / 3; background: #e6edf6; border-radius: 10px; margin-bottom: 12px; }
+  .item h3 { font-size: 16px; }
+  .item .price { color: #5b6e84; }
+  .total { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; border-top: 1px dashed #c8d4e3; padding-top: 20px; }
+  .total .was { text-decoration: line-through; color: #8a9bb0; }
+  .total .now { font-size: 30px; font-weight: 800; }
+  .total .save { color: #0b7a43; font-weight: 700; }
+  .grid { max-width: 1100px; margin: 0 auto 64px; padding: 0 24px; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px; }
+  .card { background: #fff; border-radius: 16px; padding: 16px; }
+  .card .ph { aspect-ratio: 1; background: #e6edf6; border-radius: 12px; margin-bottom: 12px; }
+  .card .tag { font-size: 12px; background: #d92d20; color: #fff; padding: 2px 8px; border-radius: 6px; }
+</style>
+</head>
+<body>
+  <section class="hero">
+    <span class="eyebrow">Winter sale</span>
+    <h1>Ride more. Pay less.</h1>
+    <p>Our biggest sale of the season. Boards, wax and bundles, all marked down until the clock runs out.</p>
+    <div class="timer" id="timer">
+      <div><b id="d">00</b><span>Days</span></div>
+      <div><b id="h">00</b><span>Hours</span></div>
+      <div><b id="m">00</b><span>Minutes</span></div>
+      <div><b id="s">00</b><span>Seconds</span></div>
+    </div>
+    <a class="btn" href="/collections/winter-sale">Shop the sale</a>
+  </section>
+
+  <section class="bundle">
+    <h2>Rider starter bundle</h2>
+    <p class="sub">Everything in one box, at one price.</p>
+    <div class="items">
+      <div class="item"><div class="ph"></div><h3>The Complete Snowboard</h3><div class="price">$699.95</div></div>
+      <div class="item"><div class="ph"></div><h3>Ski Wax</h3><div class="price">$9.95</div></div>
+    </div>
+    <div class="total">
+      <div><span class="was">$709.90</span> <span class="now">$679.95</span> <span class="save">You save $29.95</span></div>
+      <a class="btn" href="#">Add bundle to cart</a>
+    </div>
+  </section>
+
+  <section class="grid">
+    <article class="card"><div class="ph"></div><span class="tag">Sale</span><h3>The Compare at Price Snowboard</h3><p>$785.95</p></article>
+    <article class="card"><div class="ph"></div><span class="tag">Sale</span><h3>The Collection Snowboard: Hydrogen</h3><p>$600.00</p></article>
+    <article class="card"><div class="ph"></div><span class="tag">Sale</span><h3>The Multi-managed Snowboard</h3><p>$629.95</p></article>
+  </section>
+
+  <script>
+    var end = new Date('2026-11-27T23:59:59').getTime();
+    function tick() {
+      var t = Math.max(0, end - Date.now());
+      document.getElementById('d').textContent = String(Math.floor(t / 864e5)).padStart(2, '0');
+      document.getElementById('h').textContent = String(Math.floor(t % 864e5 / 36e5)).padStart(2, '0');
+      document.getElementById('m').textContent = String(Math.floor(t % 36e5 / 6e4)).padStart(2, '0');
+      document.getElementById('s').textContent = String(Math.floor(t % 6e4 / 1e3)).padStart(2, '0');
+    }
+    document.addEventListener('DOMContentLoaded', function () { tick(); setInterval(tick, 1000); });
+  </script>
+</body>
+</html>

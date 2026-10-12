@@ -1,6 +1,6 @@
 # shopify-theme-lab
 
-Liquid work on a real Shopify development store: two additions to a live theme
+Liquid work on a Shopify development store: Liquid additions to a Dawn-based theme
 that fix gaps the stock theme leaves open, plus a measured performance diagnosis
 of a public storefront.
 
