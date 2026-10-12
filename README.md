@@ -111,7 +111,7 @@ through Shopify's hosted checkout page (the discount was read from a real cart),
 always one, and a bundle with several variants prices its first available one.
 The typed-time zone picker offers five fixed offsets (no daylight-saving ones), so a sale between roughly March and
 October should use the collection metafield instead. The colour-scheme options `accent-2` and `background-2` fail
-contrast on the default preset (the hero's colour-scheme setting carries a generic hint to check the heading's contrast after changing it). Only English locale keys exist for the new sections.
+contrast on this store's own colours (`accent-2` #45c0b6, `background-2` #6b6b6b) (the hero's colour-scheme setting carries a generic hint to check the heading's contrast after changing it). Only English locale keys exist for the new sections.
 
 This repository is an overlay on Shopify's stock Dawn theme (MIT, see `LICENSE`). Most stock files are git-ignored on
 purpose (see `.gitignore`), but a few edited or stock files are tracked because earlier work changed them:
@@ -319,7 +319,7 @@ shopify theme push --unpublished        # pushed to the dev store
 ```
 
 `theme check` on the spec table and breadcrumb additions reported 48 remaining offenses across 44 files, all pre-existing in the stock
-theme. Re-run on 2026-10-12 with the sale sections added, the whole theme reports 495 offenses: 480 are
+theme. Re-run on 2026-10-12 with every check enabled and the sale sections added, the whole theme reported 495 offenses (the default configuration reports far fewer; an independent overlay run on Dawn v9.0.0 gave 16): 480 are
 `MatchingTranslations` (450 are the 15 keys of the sale sections, present only in `en.default.json` and not in the 30 other
 locale files, 30 are one stock key) and the rest are the stock ones. The sale sections' own files report 0. The older `snippets/seo-breadcrumb-jsonld.liquid` reports one `OrphanedSnippet` when the repo is overlaid on stock Dawn, because the layout that would render it is not tracked here: it is rendered from `layout/theme.liquid` (`{% render 'seo-breadcrumb-jsonld' %}` inside `<head>`).
 

@@ -52,7 +52,7 @@ def rest_publish(shop, token, resource, gid):
     """Publish to the Online Store through REST `published: true`.
 
     GraphQL publishablePublish needs read_publications, a sales-channel scope this app cannot be granted
-    (see api-analytics-hub shopify_scope_catalog.py RESTRICTED_SCOPES). REST publishes with write_products
+    (Shopify restricts it to sales-channel apps). REST publishes with write_products
     or write_content alone.
     """
     numeric = gid.rsplit("/", 1)[-1]

@@ -14,7 +14,8 @@ const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_PATH || 'playwright');
 const lighthouse = (await import('lighthouse')).default;
 
-const [, , URL_ARG, PASSWORD] = process.argv;
+const [, , URL_ARG] = process.argv;
+const PASSWORD = process.env.STORE_PASSWORD;
 
 const b0 = await chromium.launch({ headless: true });
 const ctx = await b0.newContext();

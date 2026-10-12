@@ -26,9 +26,10 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_PATH || 'playwright');
 
-const [, , URL_ARG, PASSWORD] = process.argv;
+const [, , URL_ARG] = process.argv;
+const PASSWORD = process.env.STORE_PASSWORD;
 if (!URL_ARG) {
-  console.error('usage: node perf/app-cost.mjs <url> [password]');
+  console.error('usage: [STORE_PASSWORD=<password>] node perf/app-cost.mjs <url>');
   process.exit(1);
 }
 
