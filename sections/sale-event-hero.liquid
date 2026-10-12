@@ -8,8 +8,8 @@
   assign ends_zone = ''
   assign static_label = ''
 
-  # The end time comes from, in order: the collection this page is for, the collection picked in
-  # the settings, or the time typed in the settings. A collection's date-time metafield is the one
+  # The end time comes from the collection this page is for, or, on a page that is not a collection,
+  # the collection picked in the settings; if that collection has no end metafield, the time typed in the settings is used. A collection's date-time metafield is the one
   # place to change a sale's end, because the collection page and the landing page then agree.
   assign source_collection = collection
   if source_collection == blank

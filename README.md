@@ -97,7 +97,7 @@ the preview builder read (`colors_text`, `colors_accent_1`, ...) with colour-sch
 builder warns and falls back to a plain palette (the sections themselves expect the older colour-scheme classes). It
 stops without changing anything if the two Dawn files are missing. It reads the dev store's public Storefront token from
 `SHOPIFY_STOREFRONT_TOKEN` (or a file named by `SHOPIFY_STOREFRONT_TOKEN_FILE`) and falls back to stub products
-without one; Node 20 or newer is needed (the Playwright and Sass versions in `package-lock.json` require it), Python 3 only for the seed script.
+without one; Node 20.19 or newer is needed for the tests and the preview (the Playwright and Sass versions in `package-lock.json`), Node 22.19 or newer for `perf/audit.mjs` (Lighthouse), Python 3 only for the seed script.
 Its buttons and product links are inert, its product images are hot-linked from the dev store's CDN, its countdown
 ends at the fixed instant 2026-11-28T04:59:00Z (after which it shows the ended state), and the theme's text colour is
 set to the source design's navy to show that a colour setting carries through. It is deployed to Cloudflare Pages
@@ -133,7 +133,7 @@ and `npm run test:mutants`.
 
 BreadcrumbList structured data, which the theme emits nowhere. Product,
 Organization and WebSite schema were already present; BreadcrumbList was missing,
-and it is the one Google renders **inside the result**, replacing the raw URL path
+and it is the one Google shows **inside the result** on desktop, replacing the raw URL path
 with `Store > Collection > Product`.
 
 Three decisions worth reading the file for:
@@ -268,9 +268,10 @@ for is worse than no number.
 
 The three reasons it failed are each worth knowing:
 
-1. **The Shopify CLI honours `.gitignore` on push.** A gitignored snippet is never
-   uploaded, and Liquid renders a MISSING snippet as empty **with no error**, so the
-   feature silently does not exist while the page looks fine.
+1. **A snippet I had gitignored never reached the store on push.** I did not isolate
+   whether `.gitignore` or the CLI's own exclusions did it, and Liquid renders a MISSING
+   snippet as empty **with no error**, so the feature silently does not exist while
+   the page looks fine.
 2. **Shopify minifies theme JS assets.** A 700 KB payload padded with comments
    arrived as **286 bytes**, so the first run measured nothing at all.
 3. **Storefront HTML is CDN-cached and a cache-busting query parameter does not
@@ -300,9 +301,9 @@ simulated throttling (150 ms RTT, 1.6 Mbps, 4x CPU slowdown):
 | Main-thread script evaluation | 5,441 ms |
 
 The diagnosis those numbers support: **two thirds of the transferred weight is
-third-party**, and 5.4 seconds of main-thread script evaluation is what pushes LCP
-out, so the win is not image compression, it is auditing which apps still earn
-their script tag. CLS being fine matters too, because it means the layout is not
+third-party**, and 5.4 seconds of main-thread script evaluation is the largest cost the
+table itemises (images are not itemised), so the first job is auditing which apps still earn
+their script tag, not image compression. CLS being fine matters too, because it means the layout is not
 the problem and effort spent there would be wasted.
 
 Stated honestly: these are **lab** figures under Lighthouse's mobile preset, not
@@ -314,7 +315,7 @@ beacon, and lab numbers under 4x CPU throttling are deliberately pessimistic.
 ## Verifying it
 
 ```bash
-shopify theme check                     # the sale sections' own files: zero offenses
+shopify theme check                     # none of the default-config offenses on stock Dawn v9.0.0 are in the sale sections' files
 shopify theme push --unpublished        # pushed to the dev store
 ```
 
@@ -329,7 +330,7 @@ two-item trail on a product page and nothing at all on the home page, exactly on
 Product node carries the specs, and there is no horizontal overflow or console
 error at either width.
 
-It needed the storefront password entered by hand, because a development store
+It needed the storefront password, entered by hand at the time (the store check later scripted the sign-in), because a development store
 gates everything: `theme dev`, `theme share` and the preview URL all sit behind
 it and no Admin API mutation exists to lift it.
 

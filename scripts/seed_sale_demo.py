@@ -51,9 +51,8 @@ def gql(shop, token, query, variables=None):
 def rest_publish(shop, token, resource, gid):
     """Publish to the Online Store through REST `published: true`.
 
-    GraphQL publishablePublish needs read_publications, a sales-channel scope this app cannot be granted
-    (Shopify restricts it to sales-channel apps). REST publishes with write_products
-    or write_content alone.
+    GraphQL publishablePublish needs the publications access scope, which this dev app was not given;
+    REST `published: true` worked with the product and content write scopes it has.
     """
     numeric = gid.rsplit("/", 1)[-1]
     path = {"product": "products", "collection": "smart_collections", "page": "pages"}[resource]

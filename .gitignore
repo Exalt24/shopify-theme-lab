@@ -1,8 +1,9 @@
-# THE SHOPIFY CLI HONOURS THIS FILE ON PUSH. That is not obvious and it cost an
-# hour: a gitignored snippet is never uploaded, and Liquid renders a MISSING
-# snippet as empty with no error at all, so the page looks fine and the feature
-# silently does not exist. Anything the theme needs at runtime must be un-ignored
-# here, not just committed.
+# WHAT I OBSERVED ON PUSH, NOT ISOLATED TO ONE FILE. That cost an hour: a snippet
+# this file ignored never reached the store (the CLI documents `.shopifyignore`
+# for exclusions, and I did not isolate which of the two did it), and Liquid renders
+# a MISSING snippet as empty with no error at all, so the page looks fine and the
+# feature silently does not exist. Check that anything the theme needs at runtime
+# is both committed and un-ignored here.
 # The pulled stock theme is Shopify's, not mine, and most of its files would bury
 # the two files that are. Only my additions, the perf work, the preview and the stock files noted in the README are tracked.
 assets/*
