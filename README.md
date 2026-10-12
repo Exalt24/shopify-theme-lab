@@ -71,8 +71,9 @@ one "3:59 PM GMT+11"; with JavaScript off the static label and the bundle still 
 10% automatic discount on the sale board ($749.95 to $674.96) and none on the bundle or its parts; with every variant of
 the wax at zero stock the button reads Sold out, and the inventory was restored exactly; a theme colour change
 carries through to the hero and the bundle heading; the theme editor lists both sections, shows their settings, and
-offers them in the Add section list; Lighthouse (mobile, cold, five runs) has a median of 91 (the page weight is Dawn's
-own grid images); axe finds nothing inside either section at 390px and 1280px.
+offers them in the Add section list; a theme font change carries through to both sections; Lighthouse (mobile, cold, five
+runs) has a median of 91, and the weight is Shopify's and Dawn's own scripts and stylesheets (the three files these sections
+add transfer 5.2 KB); axe finds nothing inside either section at 390px and 1280px.
 
 ![The sale landing page on the real storefront](docs/store-check/landing-desktop-manila.png)
 ![The hero's settings in the theme editor](docs/store-check/editor-hero-settings.png)

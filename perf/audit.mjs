@@ -6,9 +6,11 @@
  * beautiful score for a form with no content on it. That is worse than no
  * measurement, because it looks like data.
  *
- * The fix: log in with Playwright, take the `storefront_digest` cookie the password
- * form sets, and hand it to Lighthouse as a request header. Lighthouse then loads
- * the real storefront.
+ * The fix: log in INSIDE the browser Lighthouse drives (a persistent Playwright profile
+ * with a debugging port) and tell Lighthouse not to wipe storage, so it loads the real
+ * storefront. An earlier version forwarded a cookie header from another browser; Shopify's
+ * redirects defeated it and it scored the password page. Each run clears the cache (cookies
+ * stay) and any run that does not end on the requested page is refused.
  *
  * It also runs the audit N times and reports the MEDIAN. A single Lighthouse run on
  * a shared laptop varies by several points between identical runs, so a before and
@@ -33,28 +35,6 @@ const RUNS = Number(RUNS_ARG || 3);
 if (!URL_ARG || !LABEL) {
   console.error('usage: node perf/audit.mjs <url> <password> <label> [runs]');
   process.exit(1);
-}
-
-async function storefrontCookie() {
-  const browser = await chromium.launch({ headless: true });
-  const ctx = await browser.newContext();
-  const page = await ctx.newPage();
-  const origin = new URL(URL_ARG).origin;
-  await page.goto(`${origin}/password`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-  if (await page.$('input[type="password"]')) {
-    await page.fill('input[type="password"]', PASSWORD);
-    await page.press('input[type="password"]', 'Enter');
-    await page.waitForLoadState('networkidle').catch(() => {});
-  }
-  const cookies = await ctx.cookies();
-  await browser.close();
-  // Send the WHOLE jar, not one named cookie. Shopify used to gate the storefront
-  // with storefront_digest and now carries the session in _shopify_essential, so
-  // hunting a specific name breaks silently the next time they rename it: the
-  // audit then runs against the password page and reports a lovely score for a
-  // form with nothing on it.
-  if (!cookies.length) throw new Error('no cookies at all; the password did not take');
-  return cookies.map((c) => `${c.name}=${c.value}`).join('; ');
 }
 
 function metrics(lhr) {
@@ -89,7 +69,7 @@ function median(values) {
 
 // Log in INSIDE the browser Lighthouse will drive, and tell Lighthouse not to wipe storage. Forwarding the cookie as an
 // extra header from another browser does not survive Shopify's redirects: the audit then lands on /password and scores
-// a form (found 2026-10-12: 7 requests and 82 KB for a page that really makes about 320 requests).
+// a form (found 2026-10-12: 7 requests and 82 KB for a page that really makes about 140 requests).
 const profile = mkdtempSync(path.join(tmpdir(), 'lh-profile-'));
 const browser = await chromium.launchPersistentContext(profile, {
   headless: true,
