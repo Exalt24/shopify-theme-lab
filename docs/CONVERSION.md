@@ -31,7 +31,8 @@ Input: `design-source/winter-sale.html` (one HTML file). Output: `sections/sale-
   follows the theme settings. The static preview sets the theme's text colour to the design's navy to show that a
   colour setting carries through; the button stays the theme's.
 - The three-card product grid with red "Sale" tags and the green "You save" figure on each card: the templates use
-  Dawn's own featured-collection and collection grid sections, which were not rendered or checked here, and an
-  automatic discount cannot show a sale price on a product card from Liquid.
-- Anything that needs the Shopify storefront: the preview is a static render, its buttons do nothing, and the
-  countdown ends at the fixed instant 2026-11-28T04:59:00Z, after which the page shows its ended state.
+  Dawn's own featured-collection and collection grid sections. They render on the real store (`docs/STORE_CHECK.md`
+  items 1 and 2) but were not built or customised here, and an automatic discount cannot show a sale price on a
+  product card from Liquid.
+- The static preview is a copy, not the storefront: its buttons do nothing, and its countdown ends at the fixed
+  instant 2026-11-28T04:59:00Z, after which it shows the ended state. The real-store checks are in `docs/STORE_CHECK.md`.

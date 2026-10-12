@@ -2,7 +2,6 @@
   "name": "shopify-theme-lab",
   "version": "1.0.0",
   "description": "Liquid work on a Shopify development store: Liquid additions to a Dawn-based theme, a Claude-generated sale page converted to native sections, and a measured performance diagnosis.",
-  "main": "index.js",
   "scripts": {
     "test": "node tests/countdown.test.cjs",
     "test:mutants": "node tests/countdown_mutants.cjs",
@@ -18,7 +17,7 @@
     "url": "git+https://github.com/Exalt24/shopify-theme-lab.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Daniel Alexis Cruz",
   "license": "MIT",
   "type": "commonjs",
   "bugs": {

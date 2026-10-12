@@ -2,7 +2,7 @@
 // Shopify's objects stubbed, see shopify_liquid.cjs), fed with the dev store's real product titles, prices and
 // images read from its public Storefront API, and styled with the dev theme's own base.css and colour settings.
 // It is a static render, not the Shopify storefront: the dev store sits behind a password.
-//   node tests/render/build_preview.cjs           (reads SHOPIFY_STOREFRONT_TOKEN or a secrets folder, falls back to stubs)
+//   node tests/render/build_preview.cjs           (reads SHOPIFY_STOREFRONT_TOKEN or the file named by SHOPIFY_STOREFRONT_TOKEN_FILE, falls back to stubs)
 const fs = require('fs');
 const path = require('path');
 const { makeEngine, ShopTime, product, bundleProduct, collectionWith, renderSection } = require('./shopify_liquid.cjs');
