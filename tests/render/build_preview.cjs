@@ -87,19 +87,24 @@ html{font-size:62.5%}body{margin:0;font-size:1.5rem;letter-spacing:.06rem;line-h
   for (const f of ['base.css', 'section-sale-event-hero.css', 'section-bundle-contents.css', 'sale-countdown.js']) {
     fs.copyFileSync(path.join(ROOT, 'assets', f), path.join(OUT, 'assets', f));
   }
-  const html = `<!doctype html>
+  const page = (title, note, body) => `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sale sections, rendered from the theme files</title>
+<title>${title}</title>
 <link href="assets/base.css" rel="stylesheet"><style>${rootCss()}
 .preview-note{font:13px/1.4 Helvetica,Arial,sans-serif;padding:10px 16px;background:#fff8e1;color:#4a3b00;border-bottom:1px solid #e6d9a8}
 .preview-note b{font-weight:700}</style></head>
 <body class="gradient">
-<p class="preview-note"><b>Static preview.</b> These are the two sections from <code>shopify-theme-lab</code>, rendered from the real Liquid files with Shopify's objects stubbed (${source}). It is not the Shopify storefront, which sits behind a password.</p>
+<p class="preview-note"><b>Static preview.</b> ${note} Rendered from the real Liquid files of <code>shopify-theme-lab</code> with Shopify's objects stubbed (${source}). It is not the Shopify storefront, which sits behind a password.</p>
 <main>
-${hero}
-${bundleHtml}
+${body}
 </main></body></html>
 `;
-  fs.writeFileSync(path.join(OUT, 'index.html'), html);
+  fs.writeFileSync(path.join(OUT, 'index.html'), page('Sale sections, rendered from the theme files', 'The sale hero and the bundle block.', `${hero}\n${bundleHtml}`));
+
+  // The same bundle section with one part marked unavailable, to show the Sold out state.
+  const soldOutWax = { ...wax, available: false, selected_or_first_available_variant: { ...wax.selected_or_first_available_variant, available: false } };
+  const soldOutBundle = bundleProduct([board, soldOutWax], bundle.selected_or_first_available_variant.price, true);
+  const soldOutHtml = renderSection(engine, 'bundle-contents.liquid', { settings: { bundle_product: soldOutBundle, show_add_to_cart: true }, objects: { index: 2 } });
+  fs.writeFileSync(path.join(OUT, 'sold-out.html'), page('Bundle block with one part sold out', 'The bundle block with the wax marked unavailable.', soldOutHtml));
   console.log('wrote preview/index.html,', source);
 })().catch((e) => { console.error(e); process.exit(1); });
