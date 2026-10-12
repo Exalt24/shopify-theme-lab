@@ -4,7 +4,7 @@
 # silently does not exist. Anything the theme needs at runtime must be un-ignored
 # here, not just committed.
 # The pulled stock theme is Shopify's, not mine, and 190 files of it would bury
-# the two files that are. Only my additions and the perf work are tracked.
+# the two files that are. Only my additions, the perf work, the preview and the stock files noted in the README are tracked.
 assets/*
 !assets/spec-table.css
 !assets/section-sale-event-hero.css

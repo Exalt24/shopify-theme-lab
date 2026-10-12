@@ -3,16 +3,16 @@
  *
  * "Optimize Core Web Vitals" is not a task anyone can start. "This app costs you
  * 1.2 seconds of main-thread time and 800 KB, and it is a review widget on a page
- * with no reviews" is. This attributes bytes and blocking time to each third-party
+ * with no reviews" is. This attributes bytes and CPU time to each third-party
  * origin, which turns an app audit from an argument about taste into a list sorted
  * by cost.
  *
  * WHY BY ORIGIN AND NOT BY LIGHTHOUSE'S ENTITY LIST. Lighthouse groups by known
- * entity and lumps everything it does not recognise into nothing at all, and the
- * unrecognised ones are precisely the small Shopify apps that a merchant has
- * accumulated. Grouping by origin catches all of them, at the cost of splitting a
- * vendor across two CDNs, which is the better trade when the question is "what can
- * we remove".
+ * entity and makes up one entity per root domain for everything it does not
+ * recognise, so a vendor served from two domains is split there as well, and the
+ * report does not sort by cost to the merchant. Grouping by full origin gives one
+ * row per host that can be removed, at the cost of splitting a vendor across two
+ * CDNs, which is the better trade when the question is "what can we remove".
  *
  * WHAT THIS DELIBERATELY DOES NOT DO: recommend removals. Whether a review widget
  * earns 800 KB is a merchant decision about revenue, not a developer decision about

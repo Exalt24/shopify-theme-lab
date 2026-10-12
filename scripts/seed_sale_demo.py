@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Seed the dev store with the data the sale-event sections read.
 
-Dev store only (dac-dev-store, synthetic data). It creates, and only if missing:
+Dev store only (dac-dev-store, synthetic data). It creates what is missing and re-applies the tags and settings on every run:
   - product metafield definition  custom.bundle_items  (list of products)
   - collection metafield definition custom.sale_ends_at (date and time)
   - a bundle product "Rider Starter Bundle" (its own price, components listed in bundle_items; no SKU is set)
@@ -155,7 +155,7 @@ def main():
           mutation($c:CollectionInput!){ collectionCreate(input:$c){ collection{ id } userErrors{ field message } } }""",
             {"c": {
                 "title": "Winter Sale", "handle": "winter-sale", "templateSuffix": "sale-event",
-                "descriptionHtml": "<p>Every board and accessory in the winter sale.</p>",
+                "descriptionHtml": "<p>Selected boards in the winter sale.</p>",
                 "ruleSet": {"appliedDisjunctively": False, "rules": [{"column": "TAG", "relation": "EQUALS", "condition": "winter-sale"}]},
                 "metafields": [{"namespace": "custom", "key": "sale_ends_at", "type": "date_time", "value": SALE_ENDS_UTC}],
             }}), "collectionCreate")

@@ -11,7 +11,7 @@ are the conversion of that file into native Online Store 2.0 sections. `docs/CON
 
 ## The rule
 
-Colour, type and corner radius come from the theme, never from these files. A merchant who changes the colour
+Colour and type come from the theme, never from these files (corner radii are fixed in the section CSS, 1rem to 2rem). A merchant who changes the colour
 scheme or the theme fonts re-themes the sections without anyone touching Liquid or CSS.
 
 | In the source design | In the theme | Why |
@@ -19,7 +19,7 @@ scheme or the theme fonts re-themes the sections without anyone touching Liquid 
 | Dark navy hero background | the `inverse` colour scheme: `--color-background`, `--gradient-background` | the merchant picks it in the editor |
 | White text, soft blue-grey secondary text | `--color-foreground`, and `--color-foreground` at 0.75 to 0.85 opacity for secondary text | contrast follows whatever scheme is chosen |
 | Amber pill button | the theme's own `.button` | one button style across the store; the hue now comes from the theme, which is a deliberate change from the design |
-| Timer tiles, borders, card shadow | `rgba(var(--color-foreground), 0.08 / 0.12 / 0.2)` | tints of the text colour stay legible on any scheme |
+| Timer tiles, borders, card shadow | `rgba(var(--color-foreground), ...)` at 0.04 to 0.3 (borders and tiles at 0.08 to 0.2, the card shadow at 0.1) | tints of the text colour stay legible on any scheme |
 | Fixed font stack | `--font-heading-family`, `--font-heading-weight` | the theme's own fonts |
 | `1rem = 16px` sizes | rem values on the theme's 10px root (`1.3rem` is 13px) | the theme sets `html { font-size: 62.5% }` |
 
@@ -38,7 +38,7 @@ There are no hex literals in the section CSS or Liquid. To check: `grep -E "#[0-
   Nothing in the theme invents a compare-at price. A discount that changes at checkout needs a Shopify Function or
   a bundle app, and these sections do not pretend otherwise.
 - **Heading level is a setting.** One `h1` per page, so the sale landing page template sets the hero to `h1` and everything else stays `h2`.
-- **Every storefront string goes through `locales/en.default.json`.**
+- **Every sentence a customer reads goes through `locales/en.default.json`.** The one literal is the abbreviation `UTC` inside the zone label, written by the section and the countdown script.
 
 ## What is deliberately not here
 

@@ -18,7 +18,7 @@ const mutants = [
   ['never reaches the ended state', 'if (left === 0) {', 'if (left < 0) {'],
   ['no validation of the typed date or offset', "if (!m || !/^[+-]\\d{2}:\\d{2}$|^Z$/.test(offset)) return null;", 'if (!m) return null;'],
   ['label written as HTML', "node.textContent = template.replace('__DATE__', value);", "node.innerHTML = template.replace('__DATE__', value);"],
-  ['local line compares with the zone name (the original defect)', 'this.formatter(own).format(parsed.instant) === wall', "this.formatter({ ...own, timeZoneName: 'short' }).format(parsed.instant) === wall"],
+  ['local line compares with the zone name', 'this.formatter(own).format(parsed.instant) === wall', "this.formatter({ ...own, timeZoneName: 'short' }).format(parsed.instant) === wall"],
   ['metafield instant ignored', "const utc = (this.dataset.endsAtUtc || '').trim();", "const utc = '';"],
   ['timer never started', 'this.timer = window.setInterval(() => this.tick(), 1000);', 'this.timer = null;'],
   // The five round-trip comparisons overlap on purpose (any impossible date trips at least one), so the

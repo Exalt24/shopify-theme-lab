@@ -10,7 +10,7 @@
 
   WHY A DEFINITION LIST AND NOT A TABLE. Semantically these are name/value pairs,
   not tabular data with row and column relationships, and `dl` is what a screen
-  reader announces correctly. It also collapses to one column on a phone with no
+  reader announces correctly. The name/value pair also stays side by side at every width with no
   horizontal scroll, which a real `table` will not do without a wrapper.
 
   FOUR BUGS FIXED AFTER REVIEW, each of which looked fine until it did not:
@@ -53,8 +53,8 @@
   {%- comment -%}
     Styles BEFORE the markup. Emitting them after means the grid exists unstyled
     for a beat, which is a layout shift on a product page for no reason.
-    Scoped to this section's id, so two instances cannot fight and the rules do
-    not leak into the rest of the theme.
+    The rules use the `.spec-table` class and nothing else, so they do not leak into
+    the rest of the theme.
   {%- endcomment -%}
   {%- comment -%}
     Styles come from a COMPILED SCSS asset rather than an inline style block.

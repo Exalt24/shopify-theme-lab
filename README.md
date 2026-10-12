@@ -5,7 +5,7 @@ that fix gaps the stock theme leaves open, plus a measured performance diagnosis
 of a public storefront.
 
 Store: `dac-dev-store.myshopify.com` (development store, password-protected).
-Checked with Shopify's own `theme check` (0 offenses on the sale sections, their CSS, JS, templates and locale keys; the stock theme has its own, and the older breadcrumb snippet reports one, see "Verifying it") and pushed with the Shopify CLI.
+Checked with Shopify's own `theme check` (0 offenses on the sale sections, their CSS, JS, templates and locale keys, under the default configuration; the stock theme has its own, and the older breadcrumb snippet reports one, see "Verifying it") and pushed with the Shopify CLI.
 
 Static copy of the sale sections you can open without the store password: https://sale-sections-preview.pages.dev/ (the page Claude wrote is at `/source`).
 
@@ -33,7 +33,7 @@ What the sections do that the generated page did not:
   the collection page and the landing page then agree) or from a typed time plus a chosen zone. The sale's zone is
   shown whenever it is known (from the metafield or the zone picked), plus the visitor's local time when it differs. With JavaScript off or an unreadable date the section
   still reads correctly.
-- **`<sale-countdown>` is a custom element**, so the theme editor's re-render creates and removes timers correctly.
+- **`<sale-countdown>` is a custom element**, so a re-render that creates and removes timers is handled (tested by cloning and removing the node in Chromium; the editor itself was not used to exercise it).
   Impossible dates (31 February, 24:00) are refused by a round-trip check that does not depend on the browser's date parser (`Date.parse` alone rolls them forward in some); the tests run in Chromium only.
 - **The countdown only counts down.** The seed also creates an automatic discount with the same end instant. The two
   are equal at seed time only: the countdown reads the collection metafield and the discount has its own end date in
@@ -54,7 +54,7 @@ How it was checked (figures from runs on 2026-10-12):
 | Check | Result |
 |---|---|
 | `shopify theme check --output json`, filtered to the sale sections' own files (sections, CSS, JS, templates, locale keys) | 0 offenses. |
-| `node tests/countdown.test.cjs`: Chromium with a controlled clock | 22 of 22. It caught a real bug of mine in the local-time line while it was being written. |
+| `node tests/countdown.test.cjs`: Chromium with a controlled clock | 22 of 22. The local-time line's zone-name comparison is one of the planted defects in the mutant suite (a bug of mine, fixed before the first commit). |
 | `node tests/countdown_mutants.cjs`: planted defects | 15 of 15 caught (timer leaks, ignored zone offset, wrong day length, no end state, HTML injection, accepted impossible dates, listener leaks, and others) |
 | `node tests/liquid.test.cjs`: the real section Liquid executed through LiquidJS with Shopify's objects stubbed | 20 of 20: saving maths, whole-number percent, sold-out part and sold-out bundle, no saving row when the bundle is not cheaper, the metafield instant reaching the script as the same moment in six render zones, collection priority, escaping, heading level, image priority, every string present in the locale file. |
 | `node tests/liquid_mutants.cjs`: planted defects in the Liquid | 16 of 16 caught |
@@ -62,14 +62,14 @@ How it was checked (figures from runs on 2026-10-12):
 **What the Liquid tests are and are not.** `tests/render/shopify_liquid.cjs` is my own stand-in for the Shopify
 objects, filters and tags the two sections use (`money`, `t`, `image_url`, `{% form %}`, `{% style %}`, a date filter
 that prints a time in a given offset). It runs the real `.liquid` files, so the branches and maths are exercised, but
-it is not Shopify's renderer. The two things it cannot prove, how Shopify prints a `date_time` metafield and how the
-theme editor behaves, were checked on the real store the same day (below). The section prints the offset it was
+it is not Shopify's renderer. The two things it cannot prove, how Shopify prints a `date_time` metafield and what the
+theme editor lists and offers, were read on the real store the same day (below); how the editor re-renders a section was not exercised there. The section prints the offset it was
 rendered in precisely so the end moment is right either way, and the tests check that for six zones.
 
 **Checked on the real Shopify storefront and theme editor (2026-10-12).** The files of this repo were pushed to a
 development store's unpublished theme and read there in a real browser; the record, with screenshots, is
-[`docs/STORE_CHECK.md`](docs/STORE_CHECK.md). Short version: the landing page and the collection template render with
-no missing translations or overflow; Shopify prints the `date_time` metafield in the shop's zone and `%:z` gives its
+[`docs/STORE_CHECK.md`](docs/STORE_CHECK.md). Short version: the landing page renders with
+no missing translations or overflow and the collection template renders; Shopify prints the `date_time` metafield in the shop's zone and `%:z` gives its
 offset (`23:59:00-05:00`), so the end moment is right; a Manila browser reads "Sat, Nov 28, 12:59 PM GMT+8" and a Sydney
 one "3:59 PM GMT+11"; with JavaScript off the static label and the bundle still read correctly; a real cart shows the
 10% automatic discount on the sale board ($749.95 to $674.96) and none on the bundle or its parts; with every variant of
@@ -153,7 +153,7 @@ Three decisions worth reading the file for:
 A bug `theme check` caught in the first version, worth knowing: the home crumb used
 `'general.breadcrumbs.home' | t | default: 'Home'`, and that key does not exist in
 the theme's locales. **The `default` filter does not save you**, because a missing
-translation renders the literal string `Translation missing: en.general...`, which
+translation renders the literal string `translation missing: en.general...`, which
 is not blank, so `default` never fires. Google would have been served that text as
 the breadcrumb name on every page. It now uses `shop.name`, which needs no locale
 file and matches the Organization node the theme already emits.
@@ -319,7 +319,7 @@ shopify theme push --unpublished        # pushed to the dev store
 ```
 
 `theme check` on the spec table and breadcrumb additions reported 48 remaining offenses across 44 files, all pre-existing in the stock
-theme. Re-run on 2026-10-12 with every check enabled and the sale sections added, the whole theme reported 495 offenses (the default configuration reports far fewer; an independent overlay run on Dawn v9.0.0 gave 16): 480 are
+theme. Re-run on 2026-10-12 with every check enabled and the sale sections added, the whole theme reported 495 offenses on the dev store's own theme (the default configuration reports far fewer; an independent overlay on stock Dawn v9.0.0 gave 16 by default and 500 with every check on): 480 are
 `MatchingTranslations` (450 are the 15 keys of the sale sections, present only in `en.default.json` and not in the 30 other
 locale files, 30 are one stock key) and the rest are the stock ones. The sale sections' own files report 0. Three of the 16 offenses an overlay on bare Dawn v9.0.0 reports are in the tracked stock `sections/main-product.liquid`: it renders `snippets/selling-plans.liquid` and `assets/selling-plans.js`, which are not tracked here (the dev store has them), and the third is stock Dawn's own `UndefinedObject 'continue'`. The older `snippets/seo-breadcrumb-jsonld.liquid` reports one `OrphanedSnippet` when the repo is overlaid on stock Dawn, because the layout that would render it is not tracked here: it is rendered from `layout/theme.liquid` (`{% render 'seo-breadcrumb-jsonld' %}` inside `<head>`).
 
