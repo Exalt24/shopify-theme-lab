@@ -4,3 +4,5 @@
 *.liquid text eol=lf
 *.json text eol=lf
 *.md text eol=lf
+# Line endings and binaries, enforced on every machine (autocrlf corrupted PDFs and left shell scripts and Dockerfiles CRLF, 2026-10-13).
+*.png binary
