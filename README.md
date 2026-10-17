@@ -4,9 +4,7 @@
 
 *The sale hero and bundle block rendered from the real Liquid files: a countdown to one absolute time, then the saving worked out from the actual prices.*
 
-Liquid work on a Shopify development store: Liquid additions to a Dawn-based theme
-that fix gaps the stock theme leaves open, plus a measured performance diagnosis
-of a public storefront.
+Liquid additions to a Dawn-based Shopify theme on a dev store, plus a measured performance diagnosis. The additions fix gaps the stock theme leaves open.
 
 Store: `dac-dev-store.myshopify.com` (development store, password-protected).
 Checked with Shopify's own `theme check` (0 offenses on the sale sections, their CSS, JS, templates and locale keys, under the default configuration; the stock theme has its own, and the older breadcrumb snippet reports one, see "Verifying it") and pushed with the Shopify CLI.
