@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      # The countdown tests run in a real Chromium with a controlled clock.
+      - name: Install Chromium for the countdown tests
+        run: npx playwright install --with-deps chromium
+
+      - name: Countdown tests
+        run: npm test
+
+      - name: Liquid render tests
+        run: npm run test:liquid
+
+      - name: Spec table tests
+        run: npm run test:spec
+
+      - name: Countdown mutants
+        run: npm run test:mutants
+
+      - name: Liquid mutants
+        run: npm run test:liquid-mutants
+
+      - name: Spec table stylesheet is up to date
+        run: |
+          npm run css
+          git diff --exit-code assets/spec-table.css
