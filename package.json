@@ -26,11 +26,11 @@
   },
   "homepage": "https://github.com/Exalt24/shopify-theme-lab#readme",
   "dependencies": {
-    "lighthouse": "^13.4.1"
+    "lighthouse": "^13.5.0"
   },
   "devDependencies": {
     "liquidjs": "^10.30.0",
-    "playwright": "^1.50.0",
-    "sass": "^1.103.1"
+    "playwright": "^1.64.1",
+    "sass": "^1.105.2"
   }
 }
