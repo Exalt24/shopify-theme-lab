@@ -1,5 +1,7 @@
 # shopify-theme-lab
 
+[![CI](https://github.com/Exalt24/shopify-theme-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/Exalt24/shopify-theme-lab/actions/workflows/ci.yml)
+
 ![The sale hero counting down to a fixed instant, then the bundle block with its saving worked out from the prices](docs/demo.gif)
 
 *The sale hero and bundle block rendered from the real Liquid files: a countdown to one absolute time, then the saving worked out from the actual prices.*
