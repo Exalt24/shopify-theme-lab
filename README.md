@@ -109,7 +109,7 @@ The typed-time zone picker offers five fixed offsets (one is a summer-time offse
 October should use the collection metafield instead. The colour-scheme options `accent-2` and `background-2` fail
 contrast on this store's own colours (`accent-2` #45c0b6 is 2.2:1 against white; `background-2` #6b6b6b is 3.9:1 against black, which fails for body text and passes for large text) (the hero's colour-scheme setting carries a generic hint to check the heading's contrast after changing it). Only English locale keys exist for the new sections.
 
-The performance figures are lab figures under Lighthouse's mobile preset, not field data from real users, and the app-cost figures are an upper bound; both caveats are in [docs/performance.md](docs/performance.md).
+The performance figures are lab figures under Lighthouse's mobile preset, and the app-cost figures are an upper bound; both caveats are in [docs/performance.md](docs/performance.md).
 
 ## Stack
 
