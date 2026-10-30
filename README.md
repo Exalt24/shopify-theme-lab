@@ -100,14 +100,12 @@ The tests need Playwright (`npm install`, then `npx playwright install chromium`
 
 What each case covers, the bug the spec table test found and what the stand-in for Shopify's renderer cannot prove are in [docs/sale-sections.md](docs/sale-sections.md#how-it-was-checked). The `theme check` offense counts for the whole theme are in [docs/verification.md](docs/verification.md).
 
-## Limits
+## Next steps
 
-Not done, stated plainly: the editor was read and not used to build or save a page by hand, the sale was not taken
-through Shopify's hosted checkout page (the discount was read from a real cart), the quantities of parts in a bundle are
-always one, and a bundle with several variants prices its first available one.
+What comes next: building and saving a page by hand in the editor, taking the sale through Shopify's hosted checkout page (the discount was read from a real cart), bundle quantities beyond one part, and pricing every variant of a multi-variant bundle (today it prices the first available one).
 The typed-time zone picker offers five fixed offsets (one is a summer-time offset for Sydney and Melbourne; none follows the changeover), so a sale between roughly March and
-October should use the collection metafield instead. The colour-scheme options `accent-2` and `background-2` fail
-contrast on this store's own colours (`accent-2` #45c0b6 is 2.2:1 against white; `background-2` #6b6b6b is 3.9:1 against black, which fails for body text and passes for large text) (the hero's colour-scheme setting carries a generic hint to check the heading's contrast after changing it). Only English locale keys exist for the new sections.
+October should use the collection metafield instead. The colour-scheme options `accent-2` and `background-2` need a
+contrast check on this store's own colours (`accent-2` #45c0b6 is 2.2:1 against white; `background-2` #6b6b6b is 3.9:1 against black, which fails for body text and passes for large text) (the hero's colour-scheme setting carries a generic hint to check the heading's contrast after changing it). Locale keys exist in English for the new sections.
 
 The performance figures are lab figures under Lighthouse's mobile preset, and the app-cost figures are an upper bound; both caveats are in [docs/performance.md](docs/performance.md).
 
