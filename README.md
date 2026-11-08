@@ -12,7 +12,7 @@ Proof: `theme check` reports 0 offenses on the sale sections' own files. The cou
 
 Store: `dac-dev-store.myshopify.com` (development store, password-protected).
 
-It was checked with Shopify's own `theme check` and pushed with the Shopify CLI. There are 0 offenses on the sale sections, their CSS, JS, templates and locale keys, under the default configuration. The stock theme has its own offenses, and the older breadcrumb snippet reports one (see "Verifying it").
+It was checked with Shopify's own `theme check` and pushed with the Shopify CLI. There are 0 offenses on the sale sections, their CSS, JS, templates and locale keys, under the default configuration. The stock theme has its own offenses, and the older breadcrumb snippet reports one (details in [docs/verification.md](docs/verification.md)).
 
 Static copy of the sale sections that you can open without the store password: https://sale-sections-preview.pages.dev/
 
