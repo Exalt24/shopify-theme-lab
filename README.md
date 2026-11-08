@@ -8,21 +8,26 @@
 
 Liquid additions to a Dawn-based Shopify theme on a dev store, plus a measured performance diagnosis. The additions fix gaps the stock theme leaves open.
 
-Proof: `theme check` reports 0 offenses on the sale sections' own files, the countdown tests pass 22 of 22, the Liquid tests 20 of 20 and the spec table tests 7 of 7, and the planted-defect suites catch 15 of 15 and 16 of 16 (runs on 2026-10-12, table in [docs/sale-sections.md](docs/sale-sections.md#how-it-was-checked)).
+Proof: `theme check` reports 0 offenses on the sale sections' own files. The countdown tests pass 22 of 22, the Liquid tests 20 of 20 and the spec table tests 7 of 7. The planted-defect suites catch 15 of 15 and 16 of 16 (runs on 2026-10-12, table in [docs/sale-sections.md](docs/sale-sections.md#how-it-was-checked)).
 
 Store: `dac-dev-store.myshopify.com` (development store, password-protected).
-Checked with Shopify's own `theme check` (0 offenses on the sale sections, their CSS, JS, templates and locale keys, under the default configuration; the stock theme has its own, and the older breadcrumb snippet reports one, see "Verifying it") and pushed with the Shopify CLI.
 
-Static copy of the sale sections you can open without the store password: https://sale-sections-preview.pages.dev/ (the page Claude wrote is at `/source`).
+It was checked with Shopify's own `theme check` and pushed with the Shopify CLI. There are 0 offenses on the sale sections, their CSS, JS, templates and locale keys, under the default configuration. The stock theme has its own offenses, and the older breadcrumb snippet reports one (see "Verifying it").
+
+Static copy of the sale sections that you can open without the store password: https://sale-sections-preview.pages.dev/
+
+The page Claude wrote is at `/source` there.
 
 ## What it is and why
 
-A Dawn-based Shopify theme leaves gaps: the theme emits no BreadcrumbList structured data, a technical catalogue needs a specification table that adds a spec without a theme change, and a sale page written outside the theme cannot be pasted into it. This repo holds those additions as Online Store 2.0 pieces that read the theme's own settings, and a Lighthouse diagnosis of a public storefront that points at third-party scripts rather than image compression. The reference pages below hold the detail, the measured figures and the bugs found on the way.
+A Dawn-based Shopify theme leaves gaps. The theme emits no BreadcrumbList structured data. A technical catalogue needs a specification table that adds a spec without a theme change. A sale page written outside the theme cannot be pasted into it.
+
+This repo holds those additions as Online Store 2.0 pieces that read the theme's own settings. It also holds a Lighthouse diagnosis of a public storefront that points at third-party scripts rather than image compression. The reference pages below hold the detail, the measured figures and the bugs found on the way.
 
 ## New: a Claude-generated page, converted into native Shopify sections (October 2026)
 
-`design-source/winter-sale.html` is a landing page written by Claude (October 2026) as the stand-in for a design handed over: one HTML file, hex colours, English
-baked in, a script that runs on `DOMContentLoaded`. It cannot be pasted into a theme. This repo holds its conversion
+`design-source/winter-sale.html` is a landing page written by Claude (October 2026) as the stand-in for a design handed over. It is one HTML file with hex colours, English
+baked in, and a script that runs on `DOMContentLoaded`. It cannot be pasted into a theme. This repo holds its conversion
 into editable Online Store 2.0 pieces, and a list of what had to change and why ([`docs/CONVERSION.md`](docs/CONVERSION.md)).
 
 | Piece | File |
@@ -33,7 +38,7 @@ into editable Online Store 2.0 pieces, and a list of what had to change and why 
 | Design intent, colour and token mapping, rules to keep | `DESIGN.md` |
 | Dev-store data: bundle product, smart collection, page, metafields, a discount ending when the countdown does | `scripts/seed_sale_demo.py` |
 
-The sections take their colours from the theme's colour schemes, end the countdown at one absolute instant, handle a re-render through a custom element, and keep the bundle as its own product with its own price. The full behaviour list with the trade-offs is in [docs/sale-sections.md](docs/sale-sections.md).
+The sections take their colours from the theme's colour schemes and end the countdown at one absolute instant. They handle a re-render through a custom element. They keep the bundle as its own product with its own price. The full behaviour list with the trade-offs is in [docs/sale-sections.md](docs/sale-sections.md).
 
 ## What is in here
 
@@ -62,7 +67,7 @@ The repo is an overlay on Shopify's stock Dawn theme. Most stock files are git-i
 
 ## Run it
 
-You need the Shopify CLI and a dev store for the push, and Node 20 or newer for the tests and the preview (Playwright 1.64). Node 20.19 or newer is needed for `npm run css` (Sass), Node 22.19 or newer for `perf/audit.mjs` (Lighthouse), and Python 3 only for the seed script and `perf/read_report.py`.
+You need the Shopify CLI and a dev store for the push. You also need Node 20 or newer for the tests and the preview (Playwright 1.64). Node 20.19 or newer is needed for `npm run css` (Sass), and Node 22.19 or newer for `perf/audit.mjs` (Lighthouse). Python 3 is needed only for the seed script and `perf/read_report.py`.
 
 ```bash
 shopify theme check
@@ -72,7 +77,7 @@ npx playwright install chromium
 npm run preview
 ```
 
-`npm run preview` renders both sections from the real files, fed with the dev store's own product titles, prices and images read from its public Storefront API, and screenshots them at 390px and 1280px with a fixed clock. It needs the stock Dawn files this repo overlays, so run it from a checkout of Shopify's Dawn v9.0.0 or earlier with this repo's files copied over it. The setup, the token variables and what the preview does are in [docs/storefront-and-preview.md](docs/storefront-and-preview.md). To try the sale sections in your own Dawn-based theme, copy only the files listed in [docs/overlay-and-own-theme.md](docs/overlay-and-own-theme.md) and merge the `sections.sale_event_hero` and `sections.bundle_contents` keys into your own locale file. `scripts/seed_sale_demo.py` seeds the author's development store only, and it refuses any other shop.
+`npm run preview` renders both sections from the real files, fed with the dev store's own product titles, prices and images read from its public Storefront API. It screenshots them at 390px and 1280px with a fixed clock. It needs the stock Dawn files this repo overlays, so run it from a checkout of Shopify's Dawn v9.0.0 or earlier with this repo's files copied over it. The setup, the token variables and what the preview does are in [docs/storefront-and-preview.md](docs/storefront-and-preview.md). To try the sale sections in your own Dawn-based theme, copy only the files listed in [docs/overlay-and-own-theme.md](docs/overlay-and-own-theme.md) and merge the `sections.sale_event_hero` and `sections.bundle_contents` keys into your own locale file. `scripts/seed_sale_demo.py` seeds the author's development store only. It refuses any other shop.
 
 ![Laptop width](preview/laptop-1280.png)
 ![Phone width](preview/phone-390.png)
@@ -98,16 +103,22 @@ The tests need Playwright (`npm install`, then `npx playwright install chromium`
 | `node tests/liquid_mutants.cjs`: planted defects in the Liquid | 16 of 16 caught |
 | `node tests/spec_table.test.cjs` (`npm run test:spec`): the older spec table through LiquidJS | 7 of 7 |
 
-What each case covers, the bug the spec table test found and what the stand-in for Shopify's renderer cannot prove are in [docs/sale-sections.md](docs/sale-sections.md#how-it-was-checked). The `theme check` offense counts for the whole theme are in [docs/verification.md](docs/verification.md).
+[docs/sale-sections.md](docs/sale-sections.md#how-it-was-checked) covers what each case does, the bug the spec table test found and what the stand-in for Shopify's renderer cannot prove. The `theme check` offense counts for the whole theme are in [docs/verification.md](docs/verification.md).
 
 ## Next steps
 
-What comes next: building and saving a page by hand in the editor, taking the sale through Shopify's hosted checkout page (the discount was read from a real cart), bundle quantities beyond one part, and pricing every variant of a multi-variant bundle (today it prices the first available one).
-The typed-time zone picker offers five fixed offsets (one is a summer-time offset for Sydney and Melbourne; none follows the changeover), so a sale between roughly March and
-October should use the collection metafield instead. The colour-scheme options `accent-2` and `background-2` need a
-contrast check on this store's own colours (`accent-2` #45c0b6 is 2.2:1 against white; `background-2` #6b6b6b is 3.9:1 against black, which fails for body text and passes for large text) (the hero's colour-scheme setting carries a generic hint to check the heading's contrast after changing it). Locale keys exist in English for the new sections.
+What comes next:
 
-The performance figures are lab figures under Lighthouse's mobile preset, and the app-cost figures are an upper bound; both caveats are in [docs/performance.md](docs/performance.md).
+- Build and save a page by hand in the editor.
+- Take the sale through Shopify's hosted checkout page (the discount was read from a real cart).
+- Support bundle quantities beyond one part.
+- Price every variant of a multi-variant bundle (today it prices the first available one).
+
+The typed-time zone picker offers five fixed offsets. One is a summer-time offset for Sydney and Melbourne, and none follows the changeover. A sale between roughly March and October should use the collection metafield instead.
+
+The colour-scheme options `accent-2` and `background-2` need a contrast check on this store's own colours. `accent-2` #45c0b6 is 2.2:1 against white. `background-2` #6b6b6b is 3.9:1 against black, which fails for body text and passes for large text. The hero's colour-scheme setting carries a generic hint to check the heading's contrast after changing it. Locale keys exist in English for the new sections.
+
+The performance figures are lab figures under Lighthouse's mobile preset. The app-cost figures are an upper bound. Both caveats are in [docs/performance.md](docs/performance.md).
 
 ## Stack
 
@@ -115,4 +126,4 @@ Liquid on Shopify's Dawn theme, the Shopify CLI and `theme check`, JavaScript te
 
 ## License
 
-This repository is an overlay on Shopify's stock Dawn theme (MIT with Shopify's added condition that it is used to develop themes that work with Shopify; the full text is in `LICENSE`, next to the MIT licence of my additions).
+This repository is an overlay on Shopify's stock Dawn theme. That is MIT with Shopify's added condition that it is used to develop themes that work with Shopify. The full text is in `LICENSE`, next to the MIT licence of my additions.
