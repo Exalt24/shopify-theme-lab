@@ -56,6 +56,7 @@ Reference pages:
 - [docs/overlay-and-own-theme.md](docs/overlay-and-own-theme.md): which stock Dawn files are tracked and how to use the sections in your own theme
 - [docs/seo-and-spec-table.md](docs/seo-and-spec-table.md): the breadcrumb snippet, the spec table and the five product pages the layout came from
 - [docs/performance.md](docs/performance.md): `perf/` tooling, what was tried and thrown away, and the original diagnosis
+- [docs/cro-review.md](docs/cro-review.md): the sale page reviewed against conversion rate optimization practice, and what was not measured on a development store
 - [docs/verification.md](docs/verification.md): `theme check` offense counts, earlier browser checks and why a linter is not a validator
 - [docs/STORE_CHECK.md](docs/STORE_CHECK.md) and [docs/CONVERSION.md](docs/CONVERSION.md): the real-store record with screenshots, and what changed in the conversion
 
